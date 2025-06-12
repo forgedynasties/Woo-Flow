@@ -167,14 +167,10 @@ def create_test_products():
         
         created_variations = []
         for i, variation_data in enumerate(variations):
-            # Add parent ID and type
-            variation_data["parent_id"] = parent_id
-            variation_data["type"] = "simple"  # WooCommerce API accepts only simple, grouped, external, variable
-            
-            # Create the variation
             print(f"Creating variation {i+1}/{len(variations)}...")
             try:
-                variation = client.products.create_product(variation_data)
+                # Create the variation using the correct endpoint
+                variation = client.products.create_variation(parent_id, variation_data)
                 created_variations.append(variation)
                 
                 # Fix the index out of range error by checking if attributes exist in response

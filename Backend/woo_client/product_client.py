@@ -69,11 +69,10 @@ class ProductClient(BaseWooClient):
         # Ensure variation has the parent_id
         if isinstance(variation_data, Product):
             variation_data.parent_id = parent_id
-            variation_data.type = "simple"  # WooCommerce API doesn't accept "variation" type
+            variation_data.type = "variation"  # WooCommerce API expects "variation" type
             data = variation_data.to_dict()
         else:
             data = variation_data.copy()
-            data["parent_id"] = parent_id
-            data["type"] = "simple"  # WooCommerce API doesn't accept "variation" type
+            data["type"] = "variation"  # WooCommerce API expects "variation" type
             
-        return self._make_request('POST', '/products', data=data)
+        return self._make_request('POST', f'/products/{parent_id}/variations', data=data)
