@@ -1,0 +1,30 @@
+# Core dependencies
+requests>=2.31.0
+python-dotenv>=1.0.0
+pydantic>=2.5.0
+
+# API and Web Framework
+fastapi>=0.104.0
+uvicorn>=0.24.0
+python-multipart>=0.0.6
+
+# CSV Processing
+pandas>=2.1.0
+openpyxl>=3.1.2  # For Excel file support
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+
+# Development
+black>=23.9.0
+ruff>=0.1.0
+mypy>=1.5.0
+
+# AI Integration (for future use)
+openai>=1.0.0  # For AI-powered description generation
+
+# Utilities
+tqdm>=4.66.0  # For progress bars
+python-jose[cryptography]>=3.3.0  # For JWT tokens
+passlib[bcrypt]>=1.7.4  # For password hashing 
