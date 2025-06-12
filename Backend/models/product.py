@@ -1,20 +1,26 @@
-from dataclasses import dataclass, field
-from typing import List, Dict, Optional, Any, Union
+from typing import List, Dict, Optional, Any, Union, Literal
 from datetime import datetime
+from decimal import Decimal
+import re
+from pydantic import BaseModel, Field, validator, model_validator
 
 
-@dataclass
-class ProductImage:
-    """WooCommerce product image"""
+class ProductImage(BaseModel):
+    """WooCommerce product image with validation"""
     src: str
     id: Optional[int] = None
     name: Optional[str] = None
     alt: Optional[str] = None
 
+    @validator('src')
+    def validate_src(cls, v):
+        if not v.startswith(('http://', 'https://')):
+            raise ValueError('Image source must be a valid URL')
+        return v
 
-@dataclass
-class ProductAttribute:
-    """WooCommerce product attribute"""
+
+class ProductAttribute(BaseModel):
+    """WooCommerce product attribute with validation"""
     name: str
     options: List[str]
     position: int = 0
@@ -22,26 +28,52 @@ class ProductAttribute:
     variation: bool = False
     id: Optional[int] = None
 
+    @validator('options')
+    def validate_options(cls, v):
+        if not v:
+            raise ValueError('Attribute must have at least one option')
+        return v
 
-@dataclass
-class ProductCategory:
-    """WooCommerce product category reference"""
+
+class ProductCategory(BaseModel):
+    """WooCommerce product category with validation"""
     id: int
     name: Optional[str] = None
     slug: Optional[str] = None
 
 
-@dataclass
-class Product:
+class ProductVariation(BaseModel):
+    """Helper class for creating product variations"""
+    attributes: List[Dict[str, str]]  # List of attribute name-option pairs
+    regular_price: str
+    sale_price: Optional[str] = None
+    sku: Optional[str] = None
+    stock_quantity: Optional[int] = None
+    manage_stock: bool = False
+
+    @validator('regular_price', 'sale_price')
+    def validate_price(cls, v):
+        if v is not None:
+            try:
+                Decimal(v)
+            except:
+                raise ValueError('Price must be a valid decimal number')
+        return v
+
+
+class Product(BaseModel):
     """
-    WooCommerce product model
+    Enhanced WooCommerce product model with validation and helper methods
     
-    For variable products:
-    - Use type="variable" for the parent product
-    - Use type="simple" for child variations with parent_id set
+    Features:
+    - Type validation
+    - Price validation
+    - Helper methods for common operations
+    - Better variation handling
+    - SKU and inventory management
     """
     name: str
-    type: str  # 'simple', 'grouped', 'external', 'variable'
+    type: Literal['simple', 'grouped', 'external', 'variable']
     description: str = ""
     short_description: str = ""
     
@@ -52,18 +84,82 @@ class Product:
     
     # Identifiers
     id: Optional[int] = None
-    parent_id: Optional[int] = None  # For variations, this points to the parent variable product
+    parent_id: Optional[int] = None
+    sku: Optional[str] = None
+    
+    # Inventory
+    manage_stock: bool = False
+    stock_quantity: Optional[int] = None
+    stock_status: Optional[Literal['instock', 'outofstock', 'onbackorder']] = None
     
     # Metadata
-    status: str = "publish"  # 'draft', 'pending', 'private', 'publish'
-    catalog_visibility: str = "visible"  # 'visible', 'catalog', 'search', 'hidden'
+    status: Literal['draft', 'pending', 'private', 'publish'] = "publish"
+    catalog_visibility: Literal['visible', 'catalog', 'search', 'hidden'] = "visible"
     featured: bool = False
     
     # Relationships
-    categories: List[Union[ProductCategory, Dict[str, Any], int]] = field(default_factory=list)
-    images: List[Union[ProductImage, Dict[str, Any], str]] = field(default_factory=list)
-    attributes: List[Union[ProductAttribute, Dict[str, Any]]] = field(default_factory=list)
+    categories: List[Union[ProductCategory, Dict[str, Any], int]] = Field(default_factory=list)
+    images: List[Union[ProductImage, Dict[str, Any], str]] = Field(default_factory=list)
+    attributes: List[Union[ProductAttribute, Dict[str, Any]]] = Field(default_factory=list)
     
+    # Variations (for variable products)
+    variations: List[ProductVariation] = Field(default_factory=list)
+
+    @validator('regular_price', 'sale_price')
+    def validate_price(cls, v):
+        if v is not None:
+            try:
+                Decimal(v)
+            except:
+                raise ValueError('Price must be a valid decimal number')
+        return v
+
+    @validator('sku')
+    def validate_sku(cls, v):
+        if v is not None:
+            if not re.match(r'^[a-zA-Z0-9-_]+$', v):
+                raise ValueError('SKU must contain only letters, numbers, hyphens, and underscores')
+        return v
+
+    @model_validator(mode='after')
+    def validate_variable_product(self):
+        if self.type == 'variable':
+            if not self.attributes:
+                raise ValueError('Variable products must have attributes')
+            if not any(attr.variation if isinstance(attr, ProductAttribute) else attr.get('variation', False) 
+                      for attr in self.attributes):
+                raise ValueError('Variable products must have at least one variation attribute')
+        return self
+
+    def add_variation(self, variation: ProductVariation) -> None:
+        """Add a variation to a variable product"""
+        if self.type != 'variable':
+            raise ValueError('Can only add variations to variable products')
+        self.variations.append(variation)
+
+    def add_attribute(self, attribute: ProductAttribute) -> None:
+        """Add an attribute to the product"""
+        self.attributes.append(attribute)
+
+    def add_category(self, category: Union[ProductCategory, int]) -> None:
+        """Add a category to the product"""
+        self.categories.append(category)
+
+    def add_image(self, image: Union[ProductImage, str]) -> None:
+        """Add an image to the product"""
+        self.images.append(image)
+
+    def set_sale(self, sale_price: str, end_date: Optional[Union[str, datetime]] = None) -> None:
+        """Set a sale price and optional end date"""
+        self.sale_price = sale_price
+        self.sale_end_date = end_date
+
+    def set_stock(self, quantity: int, manage: bool = True) -> None:
+        """Set stock quantity and management"""
+        self.stock_quantity = quantity
+        self.manage_stock = manage
+        self.stock_status = 'instock' if quantity > 0 else 'outofstock'
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert the product to a dictionary for WooCommerce API"""
         result = {
@@ -74,6 +170,10 @@ class Product:
             "status": self.status,
             "catalog_visibility": self.catalog_visibility,
             "featured": self.featured,
+            "sku": self.sku,
+            "manage_stock": self.manage_stock,
+            "stock_quantity": self.stock_quantity,
+            "stock_status": self.stock_status,
         }
         
         # Add price fields if set
@@ -89,7 +189,7 @@ class Product:
             else:
                 result["date_on_sale_to"] = self.sale_end_date
         
-        # Add parent ID for variations (but don't include type=variation, use type=simple)
+        # Add parent ID for variations
         if self.parent_id is not None:
             result["parent_id"] = self.parent_id
             
@@ -133,7 +233,47 @@ class Product:
                         result["attributes"][-1]["id"] = attr.id
         
         return result
-    
+
+    @classmethod
+    def create_simple(
+        cls,
+        name: str,
+        price: str,
+        description: str = "",
+        short_description: str = "",
+        sku: Optional[str] = None,
+        stock_quantity: Optional[int] = None,
+        manage_stock: bool = False,
+    ) -> 'Product':
+        """Helper method to create a simple product"""
+        return cls(
+            name=name,
+            type='simple',
+            regular_price=price,
+            description=description,
+            short_description=short_description,
+            sku=sku,
+            stock_quantity=stock_quantity,
+            manage_stock=manage_stock,
+        )
+
+    @classmethod
+    def create_variable(
+        cls,
+        name: str,
+        description: str = "",
+        short_description: str = "",
+        attributes: List[ProductAttribute] = None,
+    ) -> 'Product':
+        """Helper method to create a variable product"""
+        return cls(
+            name=name,
+            type='variable',
+            description=description,
+            short_description=short_description,
+            attributes=attributes or [],
+        )
+
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'Product':
         """Create a Product instance from a WooCommerce API response"""
@@ -150,6 +290,10 @@ class Product:
             status=data.get("status", "publish"),
             catalog_visibility=data.get("catalog_visibility", "visible"),
             featured=data.get("featured", False),
+            sku=data.get("sku"),
+            manage_stock=data.get("manage_stock", False),
+            stock_quantity=data.get("stock_quantity"),
+            stock_status=data.get("stock_status"),
         )
         
         # Extract sale end date
