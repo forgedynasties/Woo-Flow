@@ -5,7 +5,7 @@ from .base_client import BaseWooClient
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from models import Product
+from models import Product, ProductVariation
 
 
 class ProductClient(BaseWooClient):
@@ -56,23 +56,22 @@ class ProductClient(BaseWooClient):
         params = {'force': force}
         return self._make_request('DELETE', f'/products/{product_id}', params=params)
     
-    def create_variation(self, parent_id: int, variation_data: Union[Product, Dict[str, Any]]) -> Dict[str, Any]:
-        """Create a product variation for a variable product
+    def create_variation(self, parent_id: int, variation_data: Union[Product, Dict[str, Any], ProductVariation]) -> Dict[str, Any]:
+        """Create a new variation for a variable product
         
         Args:
-            parent_id: ID of the parent variable product
-            variation_data: Variation data (without parent_id)
-            
-        Returns:
-            dict: Created variation data from API
+            parent_id: The ID of the parent product
+            variation_data: Either a Product object, ProductVariation object, or a dictionary of variation data
         """
-        # Ensure variation has the parent_id
         if isinstance(variation_data, Product):
-            variation_data.parent_id = parent_id
-            variation_data.type = "variation"  # WooCommerce API expects "variation" type
+            data = variation_data.to_dict()
+        elif isinstance(variation_data, ProductVariation):
             data = variation_data.to_dict()
         else:
             data = variation_data.copy()
-            data["type"] = "variation"  # WooCommerce API expects "variation" type
             
+        # WooCommerce API expects "variation" type
+        if isinstance(data, dict):
+            data["type"] = "variation"
+        
         return self._make_request('POST', f'/products/{parent_id}/variations', data=data)

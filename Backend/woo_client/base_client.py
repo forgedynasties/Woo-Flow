@@ -24,6 +24,7 @@ class BaseWooClient:
         self.store_url = store_url.rstrip('/')
         # Construct the API base URL
         self.api_base_url = f"{self.store_url}/wp-json/wc/v3"
+        self.wp_api_base_url = f"{self.store_url}/wp-json/wp/v2"
         # Create auth header for HTTP Basic Auth
         self._auth_header = self._create_auth_header(api_key, api_secret)
         # SSL verification setting
@@ -40,14 +41,16 @@ class BaseWooClient:
         auth_b64 = base64.b64encode(auth_bytes).decode('ascii')
         return {'Authorization': f'Basic {auth_b64}'}
 
-    def _make_request(self, method: str, endpoint: str, params: Optional[Dict] = None, data: Optional[Dict] = None) -> Any:
-        """Make a request to the WooCommerce API
+    def _make_request(self, method: str, endpoint: str, params: Optional[Dict] = None, data: Optional[Dict] = None, 
+                      wordpress_api: bool = False) -> Any:
+        """Make a request to the WooCommerce API or WordPress API
 
         Args:
             method: HTTP method (GET, POST, etc.)
             endpoint: API endpoint (e.g., /products)
             params: Query parameters
             data: Body data for POST/PUT requests
+            wordpress_api: Whether to use the WordPress API instead of WooCommerce API
 
         Returns:
             JSON response from the API
@@ -55,7 +58,9 @@ class BaseWooClient:
         Raises:
             Exception: If the API returns a non-200 status code
         """
-        url = f"{self.api_base_url}{endpoint}"
+        # Choose the appropriate base URL
+        base_url = self.wp_api_base_url if wordpress_api else self.api_base_url
+        url = f"{base_url}{endpoint}"
         headers = {**self._auth_header, 'Content-Type': 'application/json'}
         
         response = requests.request(

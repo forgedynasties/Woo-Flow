@@ -60,7 +60,7 @@ class ProductCategory(BaseModel):
 
 class ProductVariation(BaseModel):
     """Helper class for creating product variations"""
-    attributes: List[Dict[str, str]]  # List of attribute name-option pairs
+    attributes: List[Dict[str, Any]]  # Update to allow any type for values, not just strings
     regular_price: str
     sale_price: Optional[str] = None
     sku: Optional[str] = None
@@ -93,17 +93,24 @@ class ProductVariation(BaseModel):
 
         # Process attributes
         for attr in self.attributes:
-            attr_dict = {}
-            # Check if this is a global attribute (starts with pa_)
-            if attr.get('name', '').startswith('pa_'):
+            # Handle global and local attributes correctly
+            if 'id' in attr:
+                # This is a global attribute - must provide ID as number
                 attr_dict = {
-                    "id": int(attr.get('name', '').split('_')[1]),  # Extract ID from pa_123 format
-                    "option": attr.get('option', '')
+                    "id": int(attr['id']),
+                    "option": attr['option']
+                }
+            elif attr.get('name', '').startswith('pa_'):
+                # This is a global attribute referenced by slug
+                attr_dict = {
+                    "name": attr['name'],
+                    "option": attr['option']
                 }
             else:
+                # This is a local attribute
                 attr_dict = {
-                    "name": attr.get('name', ''),
-                    "option": attr.get('option', '')
+                    "name": attr['name'],
+                    "option": attr['option']
                 }
             result["attributes"].append(attr_dict)
 

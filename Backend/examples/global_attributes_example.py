@@ -79,6 +79,16 @@ def create_global_attribute_example():
             created_terms.append(term)
             print(f"Using term: {term['name']} for {color_attribute['name']}")
 
+        # Media IDs for product and variations
+        # In a real-world scenario, you would upload these using the media client
+        # For this example, we're using placeholder IDs that should exist in your store
+        main_product_image_id = 474  # Replace with an actual media ID from your store
+        color_images = {
+            "Red": 475,    # Replace with actual media IDs
+            "Blue": 476,
+            "Green": 477
+        }
+
         # Create a variable product using the global attribute
         product = Product(
             name="T-Shirt with Global Attributes",
@@ -92,42 +102,36 @@ def create_global_attribute_example():
                     variation=True,
                     is_global=True,
                     id=color_attribute['id'],
-                    global_slug="pa_color"
+                    global_slug=f"pa_{color_attribute['slug']}" if 'slug' in color_attribute else None
                 )
             ]
         )
 
-        # Add a default product image
-        product.add_image(ProductImage(id=474))  # Replace with actual media ID
+        # Add a default product image using media ID
+        product.add_image(main_product_image_id)
 
         # Create the product
         created_product = client.products.create_product(product)
         print(f"Created variable product with ID: {created_product['id']}")
 
         # Create variations for each color with their own images
-        # In a real scenario, you would have different media IDs for each color
-        color_images = {
-            "Red": 475,    # Replace with actual media ID for red t-shirt
-            "Blue": 476,   # Replace with actual media ID for blue t-shirt
-            "Green": 477   # Replace with actual media ID for green t-shirt
-        }
-
         for color in color_terms:
             variation = ProductVariation(
-                attributes=[{"name": f"pa_{color_attribute['id']}", "option": color}],
+                attributes=[{"name": "pa_color", "option": color}],
                 regular_price="19.99",
                 sku=f"TSHIRT-{color.upper()}"
             )
-            # Add the color-specific image to the variation
-            variation.add_image(ProductImage(id=color_images[color]))
+            
+            # Add the color-specific image to the variation using media ID
+            variation.add_image(color_images.get(color, main_product_image_id))
             
             # Create the variation
-            response = client.products.create_variation(created_product['id'], variation.to_dict())
-            print(f"Created variation for color: {color} with image ID: {color_images[color]}")
+            response = client.products.create_variation(created_product['id'], variation)
+            print(f"Created variation for color: {color} with image ID: {color_images.get(color, main_product_image_id)}")
 
     except Exception as e:
         print(f"Error: {str(e)}")
         sys.exit(1)
 
 if __name__ == "__main__":
-    create_global_attribute_example() 
+    create_global_attribute_example()

@@ -14,6 +14,38 @@ class AttributeClient(BaseWooClient):
         """Get a specific global attribute by ID"""
         return self._make_request('GET', f'/products/attributes/{attribute_id}')
 
+    def get_attribute_by_name(self, name: str) -> Optional[Dict[str, Any]]:
+        """Get an attribute by its name
+        
+        Args:
+            name: The name of the attribute to find
+            
+        Returns:
+            The attribute if found, None otherwise
+        """
+        attributes = self.get_attributes(per_page=100)
+        for attr in attributes:
+            if attr['name'].lower() == name.lower():
+                return attr
+        return None
+
+    def get_or_create_attribute(self, name: str) -> Dict[str, Any]:
+        """Get an existing attribute or create it if it doesn't exist
+        
+        Args:
+            name: The name of the attribute to get or create
+            
+        Returns:
+            The existing or newly created attribute
+        """
+        # Try to find existing attribute
+        existing = self.get_attribute_by_name(name)
+        if existing:
+            return existing
+            
+        # Create new attribute if not found
+        return self.create_attribute(name)
+
     def create_attribute(self, name: str, slug: str = None) -> Dict[str, Any]:
         """Create a new global attribute
         
@@ -40,6 +72,40 @@ class AttributeClient(BaseWooClient):
         """Get terms for a specific attribute"""
         params = {'per_page': per_page}
         return self._make_request('GET', f'/products/attributes/{attribute_id}/terms', params=params)
+
+    def get_term_by_name(self, attribute_id: int, name: str) -> Optional[Dict[str, Any]]:
+        """Get a term by its name for a specific attribute
+        
+        Args:
+            attribute_id: The ID of the attribute
+            name: The name of the term to find
+            
+        Returns:
+            The term if found, None otherwise
+        """
+        terms = self.get_attribute_terms(attribute_id, per_page=100)
+        for term in terms:
+            if term['name'].lower() == name.lower():
+                return term
+        return None
+
+    def get_or_create_term(self, attribute_id: int, name: str) -> Dict[str, Any]:
+        """Get an existing term or create it if it doesn't exist
+        
+        Args:
+            attribute_id: The ID of the attribute
+            name: The name of the term to get or create
+            
+        Returns:
+            The existing or newly created term
+        """
+        # Try to find existing term
+        existing = self.get_term_by_name(attribute_id, name)
+        if existing:
+            return existing
+            
+        # Create new term if not found
+        return self.create_attribute_term(attribute_id, name)
 
     def create_attribute_term(self, attribute_id: int, name: str, slug: str = None) -> Dict[str, Any]:
         """Create a new term for an attribute

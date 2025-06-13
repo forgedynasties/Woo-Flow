@@ -7,8 +7,9 @@ A powerful toolkit for managing WooCommerce products with AI-powered description
 ### Current Features
 - Create simple and variable products with variations
 - Manage product attributes and categories
-- Handle product images
+- Handle product images with media ID support
 - Batch product creation and updates
+- Media upload and management
 
 ### Upcoming Features
 - CSV-based product management
@@ -66,6 +67,18 @@ product = Product(
 created_product = client.products.create_product(product)
 ```
 
+### Working with Media
+```python
+# Upload an image from URL
+uploaded_image = client.media.create_media_from_url(
+    image_url="https://example.com/image.jpg",
+    alt_text="Product Image"
+)
+
+# Use the media ID for a product
+product.add_image(uploaded_image['id'])
+```
+
 ### Creating Variable Products
 See `examples/create_test_product.py` for detailed examples of creating variable products with variations.
 
@@ -99,4 +112,4 @@ See `examples/create_test_product.py` for detailed examples of creating variable
 
 ## License
 
-MIT License - see LICENSE file for details 
+MIT License - see LICENSE file for details
