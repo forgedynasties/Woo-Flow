@@ -1,6 +1,7 @@
 from typing import Dict
 from .base_client import BaseWooClient
 from .product_client import ProductClient
+from .attribute_client import AttributeClient
 
 
 class WooClient(BaseWooClient):
@@ -12,6 +13,7 @@ class WooClient(BaseWooClient):
         
         # Initialize sub-clients
         self.products = ProductClient(api_key, api_secret, store_url, verify_ssl)
+        self.attributes = AttributeClient(api_key, api_secret, store_url, verify_ssl)
     
     def get_store_info(self) -> Dict:
         """Get information about the WooCommerce store"""
@@ -24,4 +26,4 @@ class WooClient(BaseWooClient):
 
 
 # Make it easier to import the classes directly
-__all__ = ['WooClient', 'BaseWooClient', 'ProductClient']
+__all__ = ['WooClient', 'BaseWooClient', 'ProductClient', 'AttributeClient']

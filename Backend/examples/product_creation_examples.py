@@ -147,11 +147,10 @@ def main():
     ) 
     
     try:
-        # # Create and upload a simple product
-        # simple_product = create_simple_product_example()
-        # print("\nCreating simple product...")
-        # response = client.products.create_product(simple_product.to_dict())
-        # print(f"Simple product created with ID: {response['id']}")
+        simple_product = create_simple_product_example()
+        print("\nCreating simple product...")
+        response = client.products.create_product(simple_product.to_dict())
+        print(f"Simple product created with ID: {response['id']}")
         
         # Create and upload a variable product
         variable_product = create_variable_product_example()
@@ -168,11 +167,6 @@ def main():
             response = client.products.create_variation(parent_id, variation_dict)
             print(f"Variation created with ID: {response['id']}")
         
-        # # Create a product with sale price
-        # sale_product = create_product_with_sale_example()
-        # print("\nCreating product with sale price...")
-        # response = client.products.create_product(sale_product.to_dict())
-        # print(f"Sale product created with ID: {response['id']}")
         
     except Exception as e:
         print(f"Error: {str(e)}")

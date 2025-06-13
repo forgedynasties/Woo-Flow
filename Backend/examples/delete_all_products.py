@@ -43,11 +43,7 @@ def delete_all_products(force=True):
         
         print(f"Found {len(products)} products to delete.")
         
-        # Confirm before proceeding
-        confirmation = input(f"Are you sure you want to delete all {len(products)} products? (y/n): ")
-        if confirmation.lower() != 'y':
-            print("Operation cancelled.")
-            return
+        
         
         # Delete each product
         print("\nDeleting products...")
@@ -72,9 +68,7 @@ def delete_all_products(force=True):
         print(f"Error: {e}")
 
 if __name__ == "__main__":
-    print("WARNING: This script will delete ALL products from your WordPress store!")
-    print("Make sure you're not running this on a production site unless intended.\n")
-    
+
     # Parse command-line arguments for force flag
     import argparse
     parser = argparse.ArgumentParser(description="Delete all products from WooCommerce")
