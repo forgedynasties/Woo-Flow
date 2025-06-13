@@ -17,22 +17,30 @@ def upload_and_use_media_example():
     api_key = os.getenv('WC_KEY')
     api_secret = os.getenv('WC_SECRET')
     store_url = os.getenv('WC_URL')
+    # Get WordPress credentials for media uploads
+    wp_username = os.getenv('WP_USERNAME')
+    wp_password = os.getenv('WP_SECRET')
     
     if not all([api_key, api_secret, store_url]):
         raise ValueError("Missing required environment variables. Please check your .env file.")
     
-    # Initialize WooCommerce client
+    if not all([wp_username, wp_password]):
+        print("Warning: WordPress username or application password missing. Media uploads may fail.")
+    
+    # Initialize WooCommerce client with WordPress credentials
     client = WooClient(
         api_key=api_key,
         api_secret=api_secret,
         store_url=store_url,
+        wp_username=wp_username,
+        wp_password=wp_password,
         verify_ssl=False
     )
     
     try:
         # Example 1: Upload an image from URL
         print("Uploading image from URL...")
-        image_url = "https://example.com/path/to/image.jpg"  # Replace with a real image URL
+        image_url = "https://windsoruk.co.uk/wp-content/uploads/Carlton-basin.jpg"  # WooCommerce logo
         uploaded_image = client.media.create_media_from_url(
             image_url=image_url,
             alt_text="Sample product image",
@@ -55,7 +63,7 @@ def upload_and_use_media_example():
             print("\nLocal image file not found. Using URL uploaded image ID instead.")
             media_id = uploaded_image['id']
         
-        # Example 3: Create a product using the media ID
+        # Example 3: Create a product with the uploaded image
         print("\nCreating product with uploaded image...")
         product = Product.create_simple(
             name="Product with Media ID",

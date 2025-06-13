@@ -2,11 +2,34 @@ from typing import List, Dict, Any, Optional, BinaryIO, Union
 import os
 import mimetypes
 import base64
+import requests
 from .base_client import BaseWooClient
 
 
 class MediaClient(BaseWooClient):
-    """Client for managing WooCommerce media/images"""
+    """Client for managing WordPress media/images"""
+
+    def __init__(self, api_key: str, api_secret: str, store_url: str, 
+                 wp_username: Optional[str] = None, wp_password: Optional[str] = None,
+                 verify_ssl: bool = True):
+        """Initialize the MediaClient with API credentials
+        
+        Args:
+            api_key: WooCommerce API key
+            api_secret: WooCommerce API secret
+            store_url: Store URL
+            wp_username: WordPress username (recommended for media uploads)
+            wp_password: WordPress application password (recommended for media uploads)
+            verify_ssl: Whether to verify SSL certificates
+        """
+        super().__init__(
+            api_key=api_key, 
+            api_secret=api_secret, 
+            store_url=store_url, 
+            wp_username=wp_username,
+            wp_password=wp_password,
+            verify_ssl=verify_ssl
+        )
 
     def get_media(self, per_page: int = 10) -> List[Dict[str, Any]]:
         """Get a list of media items from WordPress"""
@@ -28,17 +51,49 @@ class MediaClient(BaseWooClient):
         Returns:
             The created media item data
         """
-        data = {
-            'source_url': image_url,
+        # First, download the image
+        response = requests.get(image_url, verify=self.verify_ssl)
+        if response.status_code != 200:
+            raise Exception(f"Failed to download image from URL: {image_url}")
+            
+        # Get the filename from the URL or use a default
+        filename = os.path.basename(image_url)
+        if not filename or '?' in filename:
+            filename = 'image.jpg'
+            
+        # Get the content type and validate it
+        content_type = response.headers.get('content-type', 'image/jpeg')
+        if not content_type.startswith('image/'):
+            raise ValueError(f"Invalid content type: {content_type}. Only image files are allowed.")
+            
+        # Ensure the file extension matches the content type
+        ext = os.path.splitext(filename)[1].lower()
+        if not ext:
+            # Add extension based on content type
+            if 'jpeg' in content_type or 'jpg' in content_type:
+                filename += '.jpg'
+            elif 'png' in content_type:
+                filename += '.png'
+            elif 'gif' in content_type:
+                filename += '.gif'
+            elif 'webp' in content_type:
+                filename += '.webp'
+            else:
+                filename += '.jpg'  # Default to jpg if we can't determine
+        
+        # Create multipart form data
+        files = {
+            'file': (filename, response.content, content_type)
         }
         
+        # Add metadata if provided
+        data = {}
         if alt_text:
             data['alt_text'] = alt_text
-            
         if title:
             data['title'] = title
             
-        return self._make_request('POST', '/media', data=data, wordpress_api=True)
+        return self._make_request('POST', '/media', data=data, files=files, wordpress_api=True, is_multipart=True)
     
     def create_media_from_file(self, file_path: str, alt_text: str = None, title: str = None) -> Dict[str, Any]:
         """Create a media item from a local file
