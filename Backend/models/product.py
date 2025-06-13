@@ -138,6 +138,47 @@ class ProductVariation(BaseModel):
 
         return result
 
+    def add_image_from_url(self, client, image_url: str, alt_text: str = None, title: str = None) -> None:
+        """Upload an image from URL and add it to the variation
+        
+        Args:
+            client: WooClient instance with MediaClient
+            image_url: URL of the image to upload
+            alt_text: Alternative text for the image
+            title: Title for the image
+        """
+        # Upload the image using the media client
+        uploaded_image = client.media.create_media_from_url(
+            image_url=image_url,
+            alt_text=alt_text,
+            title=title
+        )
+        
+        # Add the uploaded image to the variation
+        self.add_image(uploaded_image['id'])
+        
+        return uploaded_image['id']
+        
+    def add_image_from_path(self, client, file_path: str, alt_text: str = None, title: str = None) -> None:
+        """Upload an image from local path and add it to the variation
+        
+        Args:
+            client: WooClient instance with MediaClient
+            file_path: Path to the local image file
+            alt_text: Alternative text for the image
+            title: Title for the image
+        """
+        # Upload the image using the media client
+        uploaded_image = client.media.create_media_from_file(
+            file_path=file_path,
+            alt_text=alt_text,
+            title=title
+        )
+        
+        # Add the uploaded image to the variation
+        self.add_image(uploaded_image['id'])
+        
+        return uploaded_image['id']
 
 class Product(BaseModel):
     """
@@ -428,3 +469,213 @@ class Product(BaseModel):
             ]
             
         return product
+
+    def add_image_from_path_or_url(self, client, path_or_url: str, alt_text: str = None, title: str = None) -> int:
+        """Add an image to the product from either a local path or a URL
+        
+        Args:
+            client: WooClient instance with MediaClient
+            path_or_url: Local file path or remote URL of the image
+            alt_text: Alternative text for the image
+            title: Title for the image
+            
+        Returns:
+            Media ID of the uploaded image
+        """
+        # Check if the path is a URL or a local file
+        if path_or_url.startswith(('http://', 'https://')):
+            # It's a URL
+            return self.add_image_from_url(client, path_or_url, alt_text, title)
+        else:
+            # It's a local path
+            return self.add_image_from_path(client, path_or_url, alt_text, title)
+    
+    def add_image_from_url(self, client, image_url: str, alt_text: str = None, title: str = None) -> int:
+        """Upload an image from URL and add it to the product
+        
+        Args:
+            client: WooClient instance with MediaClient
+            image_url: URL of the image to upload
+            alt_text: Alternative text for the image
+            title: Title for the image
+            
+        Returns:
+            Media ID of the uploaded image
+        """
+        # Upload the image using the media client
+        uploaded_image = client.media.create_media_from_url(
+            image_url=image_url,
+            alt_text=alt_text or f"Image for {self.name}",
+            title=title or f"{self.name} - Image"
+        )
+        
+        # Add the uploaded image to the product
+        self.add_image(uploaded_image['id'])
+        
+        return uploaded_image['id']
+        
+    def add_image_from_path(self, client, file_path: str, alt_text: str = None, title: str = None) -> int:
+        """Upload an image from local path and add it to the product
+        
+        Args:
+            client: WooClient instance with MediaClient
+            file_path: Path to the local image file
+            alt_text: Alternative text for the image
+            title: Title for the image
+            
+        Returns:
+            Media ID of the uploaded image
+        """
+        # Upload the image using the media client
+        uploaded_image = client.media.create_media_from_file(
+            file_path=file_path,
+            alt_text=alt_text or f"Image for {self.name}",
+            title=title or f"{self.name} - Image"
+        )
+        
+        # Add the uploaded image to the product
+        self.add_image(uploaded_image['id'])
+        
+        return uploaded_image['id']
+
+class ProductVariation(BaseModel):
+    """Helper class for creating product variations"""
+    attributes: List[Dict[str, Any]]  # Update to allow any type for values, not just strings
+    regular_price: str
+    sale_price: Optional[str] = None
+    sku: Optional[str] = None
+    stock_quantity: Optional[int] = None
+    manage_stock: bool = False
+    images: List[Union[ProductImage, Dict[str, Any], int]] = Field(default_factory=list)  # Support for variation images
+
+    @validator('regular_price', 'sale_price')
+    def validate_price(cls, v):
+        if v is not None:
+            try:
+                Decimal(v)
+            except:
+                raise ValueError('Price must be a valid decimal number')
+        return v
+
+    def add_image(self, image: Union[ProductImage, int]) -> None:
+        """Add an image to the variation using media ID"""
+        if isinstance(image, int):
+            image = ProductImage(id=image)
+        self.images.append(image)
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert the variation to a dictionary for WooCommerce API"""
+        result = {
+            "regular_price": str(self.regular_price),
+            "attributes": [],
+            "manage_stock": self.manage_stock,
+        }
+
+        # Process attributes
+        for attr in self.attributes:
+            # Handle global and local attributes correctly
+            if 'id' in attr:
+                # This is a global attribute - must provide ID as number
+                attr_dict = {
+                    "id": int(attr['id']),
+                    "option": attr['option']
+                }
+            elif attr.get('name', '').startswith('pa_'):
+                # This is a global attribute referenced by slug
+                attr_dict = {
+                    "name": attr['name'],
+                    "option": attr['option']
+                }
+            else:
+                # This is a local attribute
+                attr_dict = {
+                    "name": attr['name'],
+                    "option": attr['option']
+                }
+            result["attributes"].append(attr_dict)
+
+        if self.sale_price is not None:
+            result["sale_price"] = str(self.sale_price)
+        if self.sku is not None:
+            result["sku"] = self.sku
+        if self.stock_quantity is not None:
+            result["stock_quantity"] = self.stock_quantity
+
+        # Process images
+        if self.images:
+            result["image"] = {}  # WooCommerce API expects a single image for variations
+            image = self.images[0]  # Use the first image
+            if isinstance(image, int):
+                result["image"] = {"id": image, "name": ""}
+            elif isinstance(image, dict):
+                result["image"] = image
+            else:
+                result["image"] = {
+                    "id": image.id,
+                    "name": image.name or "",
+                    "alt": image.alt or ""
+                }
+
+        return result
+
+    def add_image_from_url(self, client, image_url: str, alt_text: str = None, title: str = None) -> None:
+        """Upload an image from URL and add it to the variation
+        
+        Args:
+            client: WooClient instance with MediaClient
+            image_url: URL of the image to upload
+            alt_text: Alternative text for the image
+            title: Title for the image
+        """
+        # Upload the image using the media client
+        uploaded_image = client.media.create_media_from_url(
+            image_url=image_url,
+            alt_text=alt_text,
+            title=title
+        )
+        
+        # Add the uploaded image to the variation
+        self.add_image(uploaded_image['id'])
+        
+        return uploaded_image['id']
+        
+    def add_image_from_path(self, client, file_path: str, alt_text: str = None, title: str = None) -> None:
+        """Upload an image from local path and add it to the variation
+        
+        Args:
+            client: WooClient instance with MediaClient
+            file_path: Path to the local image file
+            alt_text: Alternative text for the image
+            title: Title for the image
+        """
+        # Upload the image using the media client
+        uploaded_image = client.media.create_media_from_file(
+            file_path=file_path,
+            alt_text=alt_text,
+            title=title
+        )
+        
+        # Add the uploaded image to the variation
+        self.add_image(uploaded_image['id'])
+        
+        return uploaded_image['id']
+
+    def add_image_from_path_or_url(self, client, path_or_url: str, alt_text: str = None, title: str = None) -> int:
+        """Add an image to the variation from either a local path or a URL
+        
+        Args:
+            client: WooClient instance with MediaClient
+            path_or_url: Local file path or remote URL of the image
+            alt_text: Alternative text for the image
+            title: Title for the image
+            
+        Returns:
+            Media ID of the uploaded image
+        """
+        # Check if the path is a URL or a local file
+        if path_or_url.startswith(('http://', 'https://')):
+            # It's a URL
+            return self.add_image_from_url(client, path_or_url, alt_text, title)
+        else:
+            # It's a local path
+            return self.add_image_from_path(client, path_or_url, alt_text, title)

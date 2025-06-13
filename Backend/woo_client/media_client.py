@@ -115,28 +115,22 @@ class MediaClient(BaseWooClient):
         
         if not mime_type or not mime_type.startswith('image/'):
             raise ValueError(f"File is not a valid image: {file_path}")
-            
-        # Read the file and encode to base64
-        with open(file_path, 'rb') as img_file:
-            content = base64.b64encode(img_file.read()).decode('utf-8')
-            
-        # Create the media item
-        data = {
-            'file': {
-                'name': filename,
-                'type': mime_type,
-                'bits': content
-            }
-        }
         
-        if alt_text:
-            data['alt_text'] = alt_text
+        # For multipart/form-data upload, we need to open the file directly
+        with open(file_path, 'rb') as img_file:
+            files = {
+                'file': (filename, img_file, mime_type)
+            }
             
-        if title:
-            data['title'] = title or filename
+            # Add metadata if provided
+            data = {}
+            if alt_text:
+                data['alt_text'] = alt_text
+            if title:
+                data['title'] = title or filename
+                
+            return self._make_request('POST', '/media', data=data, files=files, wordpress_api=True, is_multipart=True)
             
-        return self._make_request('POST', '/media', data=data, wordpress_api=True)
-    
     def delete_media(self, media_id: int, force: bool = False) -> Dict[str, Any]:
         """Delete a media item
         

@@ -69,14 +69,19 @@ created_product = client.products.create_product(product)
 
 ### Working with Media
 ```python
-# Upload an image from URL
-uploaded_image = client.media.create_media_from_url(
+# Upload an image from URL and add it to a product
+product.add_image_from_url(
+    client=client,
     image_url="https://example.com/image.jpg",
     alt_text="Product Image"
 )
 
-# Use the media ID for a product
-product.add_image(uploaded_image['id'])
+# Upload an image from local file and add it to a product
+product.add_image_from_path(
+    client=client,
+    file_path="/path/to/local/image.jpg",
+    alt_text="Product Image"
+)
 ```
 
 ### Creating Variable Products
