@@ -1,0 +1,129 @@
+.product-list-container {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  padding: 20px;
+}
+
+.product-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.product-list-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.product-table-container {
+  overflow-x: auto;
+}
+
+.product-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.product-table th,
+.product-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.product-table th {
+  font-weight: 500;
+  color: #666;
+}
+
+.product-image-cell {
+  width: 50px;
+}
+
+.product-image-cell img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.no-image {
+  width: 40px;
+  height: 40px;
+  background-color: #f1f1f1;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.no-image .material-icons {
+  font-size: 20px;
+  color: #999;
+}
+
+.product-type-badge {
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  text-transform: capitalize;
+}
+
+.product-type-badge.simple {
+  background-color: rgba(74, 108, 247, 0.1);
+  color: #4a6cf7;
+}
+
+.product-type-badge.variable {
+  background-color: rgba(106, 83, 255, 0.1);
+  color: #6a53ff;
+}
+
+.product-type-badge.grouped {
+  background-color: rgba(255, 167, 15, 0.1);
+  color: #ffa70f;
+}
+
+.product-type-badge.external {
+  background-color: rgba(0, 204, 140, 0.1);
+  color: #00cc8c;
+}
+
+.product-price {
+  font-weight: 500;
+}
+
+.product-sale-price {
+  margin-left: 5px;
+  color: #dc3545;
+  font-size: 0.9em;
+}
+
+.pagination {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pagination-button {
+  background: none;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 5px;
+  cursor: pointer;
+}
+
+.pagination-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-info {
+  margin: 0 10px;
+  font-size: 14px;
+  color: #666;
+}

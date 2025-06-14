@@ -1,0 +1,102 @@
+.settings-page {
+  padding: 10px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.settings-container {
+  padding: 20px;
+  margin-bottom: 30px;
+}
+
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-weight: 500;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.form-group input {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  width: 100%;
+}
+
+.form-group input:focus {
+  border-color: #7066e0;
+  outline: none;
+}
+
+.form-help {
+  font-size: 12px;
+  color: #666;
+  margin-top: 5px;
+}
+
+.settings-note {
+  margin-bottom: 10px;
+}
+
+.password-field {
+  position: relative;
+  display: flex;
+}
+
+.show-secrets-toggle {
+  display: flex;
+  align-items: center;
+  margin: 5px 0;
+}
+
+.show-secrets-toggle label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #666;
+  cursor: pointer;
+}
+
+.settings-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.api-help-container {
+  padding: 20px;
+}
+
+.help-steps {
+  padding-left: 20px;
+  margin-bottom: 30px;
+}
+
+.help-steps li {
+  margin-bottom: 8px;
+  color: #444;
+}
+
+@media (max-width: 600px) {
+  .settings-actions {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .settings-actions button {
+    width: 100%;
+  }
+}

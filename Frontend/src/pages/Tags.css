@@ -1,0 +1,150 @@
+.tags-page {
+  padding: 10px;
+}
+
+.tags-container {
+  padding: 20px;
+}
+
+.tags-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.tags-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.tags-search {
+  margin-bottom: 20px;
+}
+
+.search-input {
+  display: flex;
+  align-items: center;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  padding: 8px 12px;
+  border: 1px solid #eee;
+}
+
+.search-input .material-icons {
+  color: #999;
+  margin-right: 8px;
+  font-size: 20px;
+}
+
+.search-input input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  color: #333;
+}
+
+.clear-search {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #999;
+}
+
+.clear-search:hover {
+  color: #333;
+}
+
+.tags-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.tag-item {
+  background-color: #f9f9f9;
+  border-radius: 6px;
+  padding: 12px;
+  border: 1px solid #eee;
+  transition: all 0.2s ease;
+}
+
+.tag-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+}
+
+.tag-name {
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.tag-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #777;
+}
+
+.tag-slug {
+  color: #999;
+  font-style: italic;
+}
+
+.tag-count {
+  background-color: rgba(112, 102, 224, 0.1);
+  color: #7066e0;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-size: 12px;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(112, 102, 224, 0.3);
+  border-top: 3px solid #7066e0;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 15px;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  text-align: center;
+  color: #666;
+}
+
+.empty-state .material-icons {
+  font-size: 48px;
+  color: #ddd;
+  margin-bottom: 10px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@media (max-width: 600px) {
+  .tags-grid {
+    grid-template-columns: 1fr;
+  }
+}

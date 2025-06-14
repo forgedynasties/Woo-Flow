@@ -1,0 +1,147 @@
+.attributes-page {
+  padding: 10px;
+}
+
+.attributes-container {
+  padding: 20px;
+}
+
+.attributes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.attributes-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.attributes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.attribute-item {
+  border: 1px solid #eee;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.attribute-item.expanded {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.attribute-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background-color: #f9f9f9;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.attribute-header:hover {
+  background-color: #f1f1f1;
+}
+
+.attribute-name {
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  color: #333;
+}
+
+.attribute-name .material-icons {
+  margin-right: 10px;
+  color: #7066e0;
+  font-size: 20px;
+}
+
+.attribute-meta {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  color: #666;
+  font-size: 14px;
+}
+
+.attribute-slug {
+  color: #888;
+}
+
+.expand-icon {
+  color: #999;
+  transition: transform 0.3s ease;
+}
+
+.attribute-item.expanded .expand-icon {
+  transform: rotate(180deg);
+}
+
+.attribute-terms {
+  padding: 15px;
+  background-color: white;
+  border-top: 1px solid #eee;
+}
+
+.terms-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.terms-table th,
+.terms-table td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.terms-table th {
+  font-weight: 500;
+  color: #666;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(112, 102, 224, 0.3);
+  border-top: 3px solid #7066e0;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 15px;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  text-align: center;
+  color: #666;
+}
+
+.empty-state .material-icons {
+  font-size: 48px;
+  color: #ddd;
+  margin-bottom: 10px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
