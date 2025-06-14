@@ -84,6 +84,32 @@ product.add_image_from_path(
 )
 ```
 
+### Working with Categories
+```python
+# Get or create categories
+main_category = client.categories.get_or_create_category(name="Electronics")
+sub_category = client.categories.get_or_create_category(
+    name="Laptops", 
+    parent=main_category['id']
+)
+
+# Create nested categories with a path
+leaf_category = client.categories.get_or_create_category_tree("Home/Kitchen/Appliances")
+
+# Add a category to a product by ID
+product.add_category(category_id)
+
+# Add a category using a slug
+product.add_category("electronics")
+
+# Add a category with its full hierarchy
+product.add_category(
+    category="Electronics/Computers/Laptops", 
+    include_hierarchy=True, 
+    client=client
+)
+```
+
 ### Creating Variable Products
 See `examples/create_test_product.py` for detailed examples of creating variable products with variations.
 

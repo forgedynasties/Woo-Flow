@@ -121,9 +121,26 @@ size_attr = ProductAttribute(
 Categories help organize products in your store:
 
 ```python
-# Add a category to a product
+# Add a category to a product by ID
+product.add_category(1)  # Using category ID
+
+# Add a category to a product by slug
+product.add_category("clothing", client=client)  # Using category slug with client for lookup
+
+# Add a category with its full hierarchy (will include all parent categories)
+product.add_category(
+    category="tables",  # Just specify the leaf category slug
+    include_hierarchy=True,
+    client=client  # Client is needed to fetch the hierarchy
+)
+```
+
+You can also use the ProductCategory class directly:
+
+```python
+from models import ProductCategory
+
 product.add_category(ProductCategory(id=1, name="Clothing"))
-product.add_category(ProductCategory(id=2, name="Premium"))
 ```
 
 ## Product Images
@@ -202,4 +219,4 @@ client = WooClient(
 response = client.products.create_product(product.to_dict())
 ```
 
-Remember to handle API responses and errors appropriately in your implementation. 
+Remember to handle API responses and errors appropriately in your implementation.

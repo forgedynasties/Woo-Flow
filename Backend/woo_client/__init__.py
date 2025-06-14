@@ -3,6 +3,7 @@ from .base_client import BaseWooClient
 from .product_client import ProductClient
 from .attribute_client import AttributeClient
 from .media_client import MediaClient
+from .category_client import CategoryClient
 
 
 class WooClient(BaseWooClient):
@@ -33,6 +34,7 @@ class WooClient(BaseWooClient):
         # Initialize sub-clients
         self.products = ProductClient(api_key, api_secret, store_url, verify_ssl=verify_ssl)
         self.attributes = AttributeClient(api_key, api_secret, store_url, verify_ssl=verify_ssl)
+        self.categories = CategoryClient(api_key, api_secret, store_url, verify_ssl=verify_ssl)
         self.media = MediaClient(
             api_key=api_key, 
             api_secret=api_secret, 
@@ -53,4 +55,4 @@ class WooClient(BaseWooClient):
 
 
 # Make it easier to import the classes directly
-__all__ = ['WooClient', 'BaseWooClient', 'ProductClient', 'AttributeClient', 'MediaClient']
+__all__ = ['WooClient', 'BaseWooClient', 'ProductClient', 'AttributeClient', 'MediaClient', 'CategoryClient']

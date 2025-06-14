@@ -218,7 +218,7 @@ class Product(BaseModel):
     featured: bool = False
     
     # Relationships
-    categories: List[Union[ProductCategory, Dict[str, Any], int]] = Field(default_factory=list)
+    categories: List[Union[ProductCategory, Dict[str, Any], int, str]] = Field(default_factory=list)
     images: List[Union[ProductImage, Dict[str, Any], int]] = Field(default_factory=list)  # Now accepts media IDs
     attributes: List[Union[ProductAttribute, Dict[str, Any]]] = Field(default_factory=list)
     
@@ -261,8 +261,47 @@ class Product(BaseModel):
         """Add an attribute to the product"""
         self.attributes.append(attribute)
 
-    def add_category(self, category: Union[ProductCategory, int]) -> None:
-        """Add a category to the product"""
+    def add_category(self, category: Union[ProductCategory, int, str], 
+                    include_hierarchy: bool = False, client=None) -> None:
+        """Add a category to the product
+        
+        Args:
+            category: Category ID, ProductCategory object, or category slug
+            include_hierarchy: Whether to include the full category hierarchy 
+                              (only applies when using slug and client)
+            client: WooClient instance (required when using slug with include_hierarchy)
+        """
+        # If category is a slug and we want to include hierarchy
+        if isinstance(category, str) and include_hierarchy:
+            if not client:
+                raise ValueError("Client must be provided to include category hierarchy")
+                
+            # Get or create the category by slug
+            leaf_category = client.categories.get_or_create_category(name=category)
+            
+            # Get full hierarchy
+            hierarchy = client.categories.get_category_hierarchy(leaf_category['id'])
+            
+            # Add all categories in hierarchy
+            for cat in hierarchy:
+                self._add_single_category(cat['id'])
+    
+        # If it's just a slug without hierarchy but we have a client, find its ID
+        elif isinstance(category, str) and client:
+            # Look up the category by slug
+            cat = client.categories.get_category_by_slug(category)
+            if cat:
+                # If found, add it by ID
+                self._add_single_category(cat['id'])
+            else:
+                # If not found, still add it as a slug (WooCommerce will handle this)
+                self._add_single_category(category)
+        else:
+            # Add directly (either ID, ProductCategory object, or slug)
+            self._add_single_category(category)
+
+    def _add_single_category(self, category: Union[ProductCategory, int, str]):
+        """Helper method to add a single category"""
         self.categories.append(category)
 
     def add_image(self, image: Union[ProductImage, int]) -> None:
@@ -315,12 +354,15 @@ class Product(BaseModel):
         if self.parent_id is not None:
             result["parent_id"] = self.parent_id
             
-        # Process categories
+        # Process categories - updated to handle slug strings
         if self.categories:
             result["categories"] = []
             for category in self.categories:
                 if isinstance(category, int):
                     result["categories"].append({"id": category})
+                elif isinstance(category, str):
+                    # For slugs, use the slug property
+                    result["categories"].append({"slug": category})
                 elif isinstance(category, dict):
                     result["categories"].append(category)
                 else:
