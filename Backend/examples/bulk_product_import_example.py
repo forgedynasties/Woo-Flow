@@ -52,8 +52,15 @@ def import_products():
     # Load environment variables
     load_dotenv()
     
+    # Create logs directory if it doesn't exist
+    logs_dir = os.path.join(parent_dir, "logs")
+    if not os.path.exists(logs_dir):
+        os.makedirs(logs_dir)
+    
     # Set up logging with debug level enabled
-    log_file = f"product_import_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+    log_filename = f"product_import_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+    log_file = os.path.join(logs_dir, log_filename)
+    
     logging.basicConfig(
         level=logging.DEBUG,  # Enable DEBUG level for more detailed logs
         format='%(asctime)s - %(levelname)s - %(message)s',

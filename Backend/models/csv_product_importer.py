@@ -40,7 +40,27 @@ class CSVProductImporter:
             logger: Optional logger instance
         """
         self.client = client
-        self.logger = logger or logging.getLogger(__name__)
+        
+        # Set up logger
+        if logger is None:
+            # Create logs directory if it doesn't exist
+            parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            logs_dir = os.path.join(parent_dir, "logs")
+            if not os.path.exists(logs_dir):
+                os.makedirs(logs_dir)
+                
+            # Create a logger with default configuration
+            log_filename = f"csv_importer_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+            log_file = os.path.join(logs_dir, log_filename)
+            
+            handler = logging.FileHandler(log_file)
+            handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+            
+            logger = logging.getLogger(__name__)
+            logger.setLevel(logging.INFO)
+            logger.addHandler(handler)
+        
+        self.logger = logger
         self.created_products = []
         self.failed_products = []
         self.current_variable_product = None
@@ -600,6 +620,8 @@ class CSVProductImporter:
             if cat_key in product_data and product_data[cat_key]:
                 category = product_data[cat_key]
                 include_hierarchy = self._parse_bool(product_data.get(include_hierarchy_key, False))
+                
+                self.logger.debug(f"Adding category '{category}' to product (include_hierarchy={include_hierarchy})")
                 
                 try:
                     # Add the category to the product

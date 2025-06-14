@@ -292,38 +292,58 @@ class Product(BaseModel):
                               (only applies when using slug and client)
             client: WooClient instance (required when using slug with include_hierarchy)
         """
-        # If category is a slug and we want to include hierarchy
+        # If category is a slug or name string and we want to include hierarchy
         if isinstance(category, str) and include_hierarchy:
             if not client:
                 raise ValueError("Client must be provided to include category hierarchy")
                 
-            # Get or create the category by slug
-            leaf_category = client.categories.get_or_create_category(name=category)
-            
-            # Get full hierarchy
-            hierarchy = client.categories.get_category_hierarchy(leaf_category['id'])
-            
-            # Add all categories in hierarchy
-            for cat in hierarchy:
-                self._add_single_category(cat['id'])
-    
-        # If it's just a slug without hierarchy but we have a client, find its ID
+            try:
+                # Get or create the category by slug/name
+                leaf_category = client.categories.get_or_create_category(name=category)
+                
+                # Get full hierarchy
+                hierarchy = client.categories.get_category_hierarchy(leaf_category['id'])
+                
+                # Add all categories in hierarchy
+                for cat in hierarchy:
+                    self._add_single_category(cat['id'])
+                    
+            except Exception as e:
+                raise ValueError(f"Error adding category hierarchy for '{category}': {str(e)}")
+        
+        # If it's just a slug/name without hierarchy but we have a client, find its ID
         elif isinstance(category, str) and client:
-            # Look up the category by slug
-            cat = client.categories.get_category_by_slug(category)
-            if cat:
-                # If found, add it by ID
-                self._add_single_category(cat['id'])
-            else:
-                # If not found, still add it as a slug (WooCommerce will handle this)
-                self._add_single_category(category)
+            try:
+                # Try to find the category by slug
+                cat = client.categories.get_category_by_slug(category)
+                if cat:
+                    # If found, add it by ID
+                    self._add_single_category(cat['id'])
+                else:
+                    # If not found by slug, try to create it
+                    created_cat = client.categories.get_or_create_category(name=category)
+                    self._add_single_category(created_cat['id'])
+            except Exception as e:
+                # If all else fails, just add the slug directly (WooCommerce will handle this)
+                self._add_single_category({"slug": category})
         else:
             # Add directly (either ID, ProductCategory object, or slug)
             self._add_single_category(category)
 
-    def _add_single_category(self, category: Union[ProductCategory, int, str]):
+    def _add_single_category(self, category: Union[ProductCategory, int, str, Dict[str, Any]]):
         """Helper method to add a single category"""
-        self.categories.append(category)
+        if isinstance(category, int):
+            # Add by ID
+            self.categories.append({"id": category})
+        elif isinstance(category, str):
+            # Add by slug
+            self.categories.append({"slug": category})
+        elif isinstance(category, dict):
+            # Already a dict, add directly
+            self.categories.append(category)
+        else:
+            # Assume it's a ProductCategory object
+            self.categories.append({"id": category.id})
 
     def add_image(self, image: Union[ProductImage, int]) -> None:
         """Add an image to the product using media ID"""

@@ -3,6 +3,7 @@ import sys
 import logging
 from dotenv import load_dotenv
 from pathlib import Path
+from datetime import datetime
 
 # Set up path for imports - add parent directory to path
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -13,13 +14,21 @@ sys.path.insert(0, parent_dir)
 from woo_client import WooClient
 from models.csv_product_importer import CSVProductImporter
 
+# Create logs directory if it doesn't exist
+logs_dir = os.path.join(parent_dir, "logs")
+if not os.path.exists(logs_dir):
+    os.makedirs(logs_dir)
+
 # Configure logging
+log_filename = f"csv_import_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+log_file = os.path.join(logs_dir, log_filename)
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler('csv_import.log')
+        logging.FileHandler(log_file)
     ]
 )
 logger = logging.getLogger(__name__)
@@ -85,6 +94,7 @@ def import_products_from_csv(csv_file_path: str):
             for failure in results['failed']:
                 logger.warning(f"  - Row {failure['row']}: {failure['error']}")
         
+        logger.info(f"Check the log file for details: {log_file}")
         return results
         
     except Exception as e:
