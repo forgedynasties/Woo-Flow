@@ -1,0 +1,8 @@
+type,sku,name,description,short_description,regular_price,sale_price,manage_stock,stock_quantity,stock_status,status,category_1,category_2,category_3,image_1,image_2,attr_name_1,attr_value_1,attr_var_1,attr_name_2,attr_value_2,attr_var_2
+simple,TS-001,Basic T-Shirt,A comfortable cotton t-shirt for everyday wear.,Classic cotton t-shirt,19.99,17.99,true,50,instock,publish,Clothing,T-Shirts,,https://example.com/tshirt.jpg,,Material,"Cotton, Polyester",false,,,
+variable,HDY-BASE,Premium Hoodie,Our premium hoodie comes in various colors and sizes.,Soft cotton hoodie,49.99,,true,100,instock,publish,Clothing,Hoodies,,https://example.com/hoodie.jpg,,Color,"Red,Blue,Green",true,Size,"S,M,L,XL",true
+variation,HDY-RED-S,,,,,45.99,true,25,instock,,,,,https://example.com/hoodie-red.jpg,,Color,Red,,Size,S,
+variation,HDY-RED-M,,,,,45.99,true,30,instock,,,,,https://example.com/hoodie-red.jpg,,Color,Red,,Size,M,
+variation,HDY-BLUE-M,,,,,47.99,true,20,instock,,,,,https://example.com/hoodie-blue.jpg,,Color,Blue,,Size,M,
+variation,HDY-GREEN-L,,,,,49.99,true,15,instock,,,,,https://example.com/hoodie-green.jpg,,Color,Green,,Size,L,
+simple,COF-ORG,Organic Coffee,Sustainably sourced organic coffee beans,Organic fair-trade coffee,10.99,,true,200,instock,publish,Food,Beverages,,,,,,,,,

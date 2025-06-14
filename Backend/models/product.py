@@ -67,10 +67,16 @@ class ProductVariation(BaseModel):
     stock_quantity: Optional[int] = None
     manage_stock: bool = False
     images: List[Union[ProductImage, Dict[str, Any], int]] = Field(default_factory=list)  # Support for variation images
+    _dimensions: Optional[Dict[str, str]] = None
+    _weight: Optional[str] = None
 
     @validator('regular_price', 'sale_price')
     def validate_price(cls, v):
         if v is not None:
+            # Convert numeric values to strings
+            if isinstance(v, (int, float)):
+                v = str(v)
+                
             try:
                 Decimal(v)
             except:
@@ -120,6 +126,13 @@ class ProductVariation(BaseModel):
             result["sku"] = self.sku
         if self.stock_quantity is not None:
             result["stock_quantity"] = self.stock_quantity
+            
+        # Add weight and dimensions if set
+        if hasattr(self, '_weight') and self._weight:
+            result['weight'] = self._weight
+            
+        if hasattr(self, '_dimensions') and self._dimensions:
+            result['dimensions'] = self._dimensions
 
         # Process images
         if self.images:
@@ -225,9 +238,17 @@ class Product(BaseModel):
     # Variations (for variable products)
     variations: List[ProductVariation] = Field(default_factory=list)
 
+    # Add dimensions and weight fields to store these values
+    _dimensions: Optional[Dict[str, str]] = None
+    _weight: Optional[str] = None
+    
     @validator('regular_price', 'sale_price')
     def validate_price(cls, v):
         if v is not None:
+            # Convert numeric values to strings
+            if isinstance(v, (int, float)):
+                v = str(v)
+                
             try:
                 Decimal(v)
             except:
@@ -337,7 +358,7 @@ class Product(BaseModel):
             "stock_status": self.stock_status,
         }
         
-        # Add price fields if set
+        # Add price fields if set - ensure they're strings
         if self.regular_price is not None:
             result["regular_price"] = str(self.regular_price)
             
@@ -353,7 +374,14 @@ class Product(BaseModel):
         # Add parent ID for variations
         if self.parent_id is not None:
             result["parent_id"] = self.parent_id
+        
+        # Add weight and dimensions if set
+        if hasattr(self, '_weight') and getattr(self, '_weight', None):
+            result['weight'] = getattr(self, '_weight')
             
+        if hasattr(self, '_dimensions') and getattr(self, '_dimensions', None):
+            result['dimensions'] = getattr(self, '_dimensions')
+        
         # Process categories - updated to handle slug strings
         if self.categories:
             result["categories"] = []
@@ -418,6 +446,10 @@ class Product(BaseModel):
         manage_stock: bool = False,
     ) -> 'Product':
         """Helper method to create a simple product"""
+        # Ensure price is a string
+        if isinstance(price, (int, float)):
+            price = str(price)
+            
         return cls(
             name=name,
             type='simple',
@@ -589,10 +621,16 @@ class ProductVariation(BaseModel):
     stock_quantity: Optional[int] = None
     manage_stock: bool = False
     images: List[Union[ProductImage, Dict[str, Any], int]] = Field(default_factory=list)  # Support for variation images
+    _dimensions: Optional[Dict[str, str]] = None
+    _weight: Optional[str] = None
 
     @validator('regular_price', 'sale_price')
     def validate_price(cls, v):
         if v is not None:
+            # Convert numeric values to strings
+            if isinstance(v, (int, float)):
+                v = str(v)
+                
             try:
                 Decimal(v)
             except:
@@ -642,7 +680,14 @@ class ProductVariation(BaseModel):
             result["sku"] = self.sku
         if self.stock_quantity is not None:
             result["stock_quantity"] = self.stock_quantity
-
+            
+        # Add weight and dimensions if set
+        if hasattr(self, '_weight') and getattr(self, '_weight', None):
+            result['weight'] = getattr(self, '_weight')
+            
+        if hasattr(self, '_dimensions') and getattr(self, '_dimensions', None):
+            result['dimensions'] = getattr(self, '_dimensions')
+        
         # Process images
         if self.images:
             result["image"] = {}  # WooCommerce API expects a single image for variations

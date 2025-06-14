@@ -1,0 +1,191 @@
+2025-06-14 20:22:22,662 - INFO - Starting product import process...
+2025-06-14 20:22:22,663 - INFO - Using CSV file: d:\Woo-Kit\Backend\examples\products copy.csv
+2025-06-14 20:22:22,686 - DEBUG - Found 2 simple products and 1 variable products
+2025-06-14 20:22:22,691 - DEBUG - Starting new HTTPS connection (1): test-site.local:443
+2025-06-14 20:22:22,920 - DEBUG - https://test-site.local:443 "GET /wp-json/wc/v3/products/categories?slug=Clothing HTTP/1.1" 200 None
+2025-06-14 20:22:22,922 - DEBUG - Starting new HTTPS connection (1): test-site.local:443
+2025-06-14 20:22:23,068 - DEBUG - https://test-site.local:443 "GET /wp-json/wc/v3/products/categories?slug=T-Shirts HTTP/1.1" 200 None
+2025-06-14 20:22:23,071 - DEBUG - Starting new HTTPS connection (1): test-site.local:443
+2025-06-14 20:22:23,383 - DEBUG - https://test-site.local:443 "POST /wp-json/wc/v3/products HTTP/1.1" 201 None
+2025-06-14 20:22:23,384 - INFO - Created simple product: Basic T-Shirt (ID: 637)
+2025-06-14 20:22:23,385 - DEBUG - Starting new HTTPS connection (1): test-site.local:443
+2025-06-14 20:22:23,505 - DEBUG - https://test-site.local:443 "GET /wp-json/wc/v3/products/categories?slug=Food HTTP/1.1" 200 None
+2025-06-14 20:22:23,506 - DEBUG - Starting new HTTPS connection (1): test-site.local:443
+2025-06-14 20:22:23,621 - DEBUG - https://test-site.local:443 "GET /wp-json/wc/v3/products/categories?slug=Beverages HTTP/1.1" 200 None
+2025-06-14 20:22:23,623 - DEBUG - Starting new HTTPS connection (1): test-site.local:443
+2025-06-14 20:22:23,889 - DEBUG - https://test-site.local:443 "POST /wp-json/wc/v3/products HTTP/1.1" 201 None
+2025-06-14 20:22:23,890 - INFO - Created simple product: Organic Coffee (ID: 638)
+2025-06-14 20:22:23,890 - DEBUG - Processing variable product Premium Hoodie with 4 variations
+2025-06-14 20:22:23,890 - DEBUG - Processing variable product: Premium Hoodie
+2025-06-14 20:22:23,890 - DEBUG - Found 4 variations
+2025-06-14 20:22:23,890 - DEBUG - Parent attribute: Color with values: ['Red', 'Blue', 'Green']
+2025-06-14 20:22:23,890 - DEBUG - Parent attribute: Size with values: ['S', 'M', 'L', 'XL']
+2025-06-14 20:22:23,890 - DEBUG - Parent attribute: Material with values: ['Cotton', 'Polyester']
+2025-06-14 20:22:23,891 - DEBUG - Creating variable product with 3 attributes
+2025-06-14 20:22:23,892 - DEBUG - Starting new HTTPS connection (1): test-site.local:443
+2025-06-14 20:22:24,024 - DEBUG - https://test-site.local:443 "GET /wp-json/wc/v3/products/categories?slug=Clothing HTTP/1.1" 200 None
+2025-06-14 20:22:24,025 - DEBUG - Starting new HTTPS connection (1): test-site.local:443
+2025-06-14 20:22:24,155 - DEBUG - https://test-site.local:443 "GET /wp-json/wc/v3/products/categories?slug=Hoodies HTTP/1.1" 200 None
+2025-06-14 20:22:24,157 - DEBUG - Starting new HTTPS connection (1): test-site.local:443
+2025-06-14 20:22:24,431 - DEBUG - https://test-site.local:443 "POST /wp-json/wc/v3/products HTTP/1.1" 201 None
+2025-06-14 20:22:24,432 - INFO - Created variable product: Premium Hoodie (ID: 639) with 3 attributes
+2025-06-14 20:22:24,434 - ERROR - Row 4: Error processing variation: 1 validation error for ProductVariation
+regular_price
+  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.11/v/string_type
+2025-06-14 20:22:24,434 - ERROR - Row 5: Error processing variation: 1 validation error for ProductVariation
+regular_price
+  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.11/v/string_type
+2025-06-14 20:22:24,434 - ERROR - Row 6: Error processing variation: 1 validation error for ProductVariation
+regular_price
+  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.11/v/string_type
+2025-06-14 20:22:24,434 - ERROR - Row 7: Error processing variation: 1 validation error for ProductVariation
+regular_price
+  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.11/v/string_type
+2025-06-14 20:22:24,435 - INFO - Import completed in 1.77 seconds
+2025-06-14 20:22:24,435 - INFO - Successfully created 3 products
+2025-06-14 20:22:24,435 - INFO -   - Basic T-Shirt (ID: 637, Type: simple)
+2025-06-14 20:22:24,435 - INFO -   - Organic Coffee (ID: 638, Type: simple)
+2025-06-14 20:22:24,436 - INFO -   - Premium Hoodie (ID: 639, Type: variable)
+2025-06-14 20:22:24,436 - WARNING - Failed to create 4 products/variations
+2025-06-14 20:22:24,436 - WARNING -   - Row 4: Error processing variation: 1 validation error for ProductVariation
+regular_price
+  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.11/v/string_type
+2025-06-14 20:22:24,436 - WARNING -   - Row 5: Error processing variation: 1 validation error for ProductVariation
+regular_price
+  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.11/v/string_type
+2025-06-14 20:22:24,436 - WARNING -   - Row 6: Error processing variation: 1 validation error for ProductVariation
+regular_price
+  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.11/v/string_type
+2025-06-14 20:22:24,437 - WARNING -   - Row 7: Error processing variation: 1 validation error for ProductVariation
+regular_price
+  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.11/v/string_type
+2025-06-14 20:22:24,437 - DEBUG - Failure details for row 4:
+2025-06-14 20:22:24,437 - DEBUG -   - type: variation
+2025-06-14 20:22:24,437 - DEBUG -   - sku: HDY-RED-S
+2025-06-14 20:22:24,437 - DEBUG -   - name: None
+2025-06-14 20:22:24,437 - DEBUG -   - description: None
+2025-06-14 20:22:24,437 - DEBUG -   - short_description: None
+2025-06-14 20:22:24,438 - DEBUG -   - regular_price: None
+2025-06-14 20:22:24,438 - DEBUG -   - sale_price: 45.99
+2025-06-14 20:22:24,438 - DEBUG -   - sale_start_date: None
+2025-06-14 20:22:24,438 - DEBUG -   - sale_end_date: None
+2025-06-14 20:22:24,438 - DEBUG -   - manage_stock: True
+2025-06-14 20:22:24,438 - DEBUG -   - stock_quantity: 25
+2025-06-14 20:22:24,438 - DEBUG -   - stock_status: instock
+2025-06-14 20:22:24,438 - DEBUG -   - status: publish
+2025-06-14 20:22:24,438 - DEBUG -   - category_1: None
+2025-06-14 20:22:24,439 - DEBUG -   - category_2: None
+2025-06-14 20:22:24,439 - DEBUG -   - category_3: None
+2025-06-14 20:22:24,439 - DEBUG -   - image_1: None
+2025-06-14 20:22:24,439 - DEBUG -   - image_2: None
+2025-06-14 20:22:24,439 - DEBUG -   - image_3: None
+2025-06-14 20:22:24,439 - DEBUG -   - attr_name_1: None
+2025-06-14 20:22:24,439 - DEBUG -   - attr_value_1: Red
+2025-06-14 20:22:24,439 - DEBUG -   - attr_name_2: None
+2025-06-14 20:22:24,440 - DEBUG -   - attr_value_2: S
+2025-06-14 20:22:24,440 - DEBUG -   - attr_name_3: None
+2025-06-14 20:22:24,440 - DEBUG -   - attr_value_3: None
+2025-06-14 20:22:24,440 - DEBUG -   - weight: 0.45
+2025-06-14 20:22:24,440 - DEBUG -   - length: 38
+2025-06-14 20:22:24,440 - DEBUG -   - width: 28
+2025-06-14 20:22:24,440 - DEBUG -   - height: 8.0
+2025-06-14 20:22:24,441 - DEBUG - Failure details for row 5:
+2025-06-14 20:22:24,441 - DEBUG -   - type: variation
+2025-06-14 20:22:24,441 - DEBUG -   - sku: HDY-RED-M
+2025-06-14 20:22:24,441 - DEBUG -   - name: None
+2025-06-14 20:22:24,441 - DEBUG -   - description: None
+2025-06-14 20:22:24,441 - DEBUG -   - short_description: None
+2025-06-14 20:22:24,441 - DEBUG -   - regular_price: None
+2025-06-14 20:22:24,441 - DEBUG -   - sale_price: 45.99
+2025-06-14 20:22:24,441 - DEBUG -   - sale_start_date: None
+2025-06-14 20:22:24,441 - DEBUG -   - sale_end_date: None
+2025-06-14 20:22:24,441 - DEBUG -   - manage_stock: True
+2025-06-14 20:22:24,442 - DEBUG -   - stock_quantity: 30
+2025-06-14 20:22:24,442 - DEBUG -   - stock_status: instock
+2025-06-14 20:22:24,442 - DEBUG -   - status: publish
+2025-06-14 20:22:24,442 - DEBUG -   - category_1: None
+2025-06-14 20:22:24,442 - DEBUG -   - category_2: None
+2025-06-14 20:22:24,442 - DEBUG -   - category_3: None
+2025-06-14 20:22:24,442 - DEBUG -   - image_1: None
+2025-06-14 20:22:24,442 - DEBUG -   - image_2: None
+2025-06-14 20:22:24,442 - DEBUG -   - image_3: None
+2025-06-14 20:22:24,443 - DEBUG -   - attr_name_1: None
+2025-06-14 20:22:24,443 - DEBUG -   - attr_value_1: Red
+2025-06-14 20:22:24,443 - DEBUG -   - attr_name_2: None
+2025-06-14 20:22:24,443 - DEBUG -   - attr_value_2: M
+2025-06-14 20:22:24,443 - DEBUG -   - attr_name_3: None
+2025-06-14 20:22:24,443 - DEBUG -   - attr_value_3: None
+2025-06-14 20:22:24,443 - DEBUG -   - weight: 0.48
+2025-06-14 20:22:24,443 - DEBUG -   - length: 40
+2025-06-14 20:22:24,443 - DEBUG -   - width: 30
+2025-06-14 20:22:24,443 - DEBUG -   - height: 8.0
+2025-06-14 20:22:24,443 - DEBUG - Failure details for row 6:
+2025-06-14 20:22:24,443 - DEBUG -   - type: variation
+2025-06-14 20:22:24,444 - DEBUG -   - sku: HDY-BLUE-M
+2025-06-14 20:22:24,444 - DEBUG -   - name: None
+2025-06-14 20:22:24,444 - DEBUG -   - description: None
+2025-06-14 20:22:24,444 - DEBUG -   - short_description: None
+2025-06-14 20:22:24,444 - DEBUG -   - regular_price: None
+2025-06-14 20:22:24,444 - DEBUG -   - sale_price: 47.99
+2025-06-14 20:22:24,444 - DEBUG -   - sale_start_date: None
+2025-06-14 20:22:24,444 - DEBUG -   - sale_end_date: None
+2025-06-14 20:22:24,444 - DEBUG -   - manage_stock: True
+2025-06-14 20:22:24,444 - DEBUG -   - stock_quantity: 20
+2025-06-14 20:22:24,444 - DEBUG -   - stock_status: instock
+2025-06-14 20:22:24,445 - DEBUG -   - status: publish
+2025-06-14 20:22:24,445 - DEBUG -   - category_1: None
+2025-06-14 20:22:24,445 - DEBUG -   - category_2: None
+2025-06-14 20:22:24,445 - DEBUG -   - category_3: None
+2025-06-14 20:22:24,445 - DEBUG -   - image_1: None
+2025-06-14 20:22:24,445 - DEBUG -   - image_2: None
+2025-06-14 20:22:24,445 - DEBUG -   - image_3: None
+2025-06-14 20:22:24,445 - DEBUG -   - attr_name_1: None
+2025-06-14 20:22:24,446 - DEBUG -   - attr_value_1: Red
+2025-06-14 20:22:24,446 - DEBUG -   - attr_name_2: None
+2025-06-14 20:22:24,446 - DEBUG -   - attr_value_2: L
+2025-06-14 20:22:24,446 - DEBUG -   - attr_name_3: None
+2025-06-14 20:22:24,446 - DEBUG -   - attr_value_3: None
+2025-06-14 20:22:24,446 - DEBUG -   - weight: 0.48
+2025-06-14 20:22:24,446 - DEBUG -   - length: 40
+2025-06-14 20:22:24,446 - DEBUG -   - width: 30
+2025-06-14 20:22:24,446 - DEBUG -   - height: 8.0
+2025-06-14 20:22:24,447 - DEBUG - Failure details for row 7:
+2025-06-14 20:22:24,447 - DEBUG -   - type: variation
+2025-06-14 20:22:24,447 - DEBUG -   - sku: HDY-GREEN-L
+2025-06-14 20:22:24,447 - DEBUG -   - name: None
+2025-06-14 20:22:24,447 - DEBUG -   - description: None
+2025-06-14 20:22:24,447 - DEBUG -   - short_description: None
+2025-06-14 20:22:24,447 - DEBUG -   - regular_price: None
+2025-06-14 20:22:24,447 - DEBUG -   - sale_price: 49.99
+2025-06-14 20:22:24,447 - DEBUG -   - sale_start_date: None
+2025-06-14 20:22:24,447 - DEBUG -   - sale_end_date: None
+2025-06-14 20:22:24,448 - DEBUG -   - manage_stock: True
+2025-06-14 20:22:24,448 - DEBUG -   - stock_quantity: 15
+2025-06-14 20:22:24,448 - DEBUG -   - stock_status: instock
+2025-06-14 20:22:24,448 - DEBUG -   - status: publish
+2025-06-14 20:22:24,448 - DEBUG -   - category_1: None
+2025-06-14 20:22:24,448 - DEBUG -   - category_2: None
+2025-06-14 20:22:24,448 - DEBUG -   - category_3: None
+2025-06-14 20:22:24,448 - DEBUG -   - image_1: None
+2025-06-14 20:22:24,449 - DEBUG -   - image_2: None
+2025-06-14 20:22:24,449 - DEBUG -   - image_3: None
+2025-06-14 20:22:24,449 - DEBUG -   - attr_name_1: None
+2025-06-14 20:22:24,449 - DEBUG -   - attr_value_1: Red
+2025-06-14 20:22:24,449 - DEBUG -   - attr_name_2: None
+2025-06-14 20:22:24,449 - DEBUG -   - attr_value_2: XL
+2025-06-14 20:22:24,449 - DEBUG -   - attr_name_3: None
+2025-06-14 20:22:24,449 - DEBUG -   - attr_value_3: None
+2025-06-14 20:22:24,449 - DEBUG -   - weight: 0.52
+2025-06-14 20:22:24,449 - DEBUG -   - length: 42
+2025-06-14 20:22:24,449 - DEBUG -   - width: 32
+2025-06-14 20:22:24,449 - DEBUG -   - height: 8.0
+2025-06-14 20:22:24,450 - INFO - Product import complete!
+2025-06-14 20:22:24,450 - INFO - Check the log file for details: product_import_20250614_202222.log

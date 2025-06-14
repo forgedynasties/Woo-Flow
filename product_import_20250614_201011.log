@@ -1,0 +1,25 @@
+2025-06-14 20:10:11,509 - INFO - Starting product import process...
+2025-06-14 20:10:11,509 - INFO - Using CSV file: d:\Woo-Kit\Backend\examples\products copy.csv
+2025-06-14 20:10:13,268 - INFO - Created simple product: Basic T-Shirt (ID: 628)
+2025-06-14 20:10:13,270 - ERROR - Row 3: Error processing product: 1 validation error for Product
+  Value error, Variable products must have attributes [type=value_error, input_value={'name': 'Premium Hoodie'...odie', 'attributes': []}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.11/v/value_error
+2025-06-14 20:10:13,270 - ERROR - Row 4: Variation found without a parent variable product
+2025-06-14 20:10:13,270 - ERROR - Row 5: Variation found without a parent variable product
+2025-06-14 20:10:13,271 - ERROR - Row 6: Variation found without a parent variable product
+2025-06-14 20:10:13,271 - ERROR - Row 7: Variation found without a parent variable product
+2025-06-14 20:10:13,843 - INFO - Created simple product: Organic Coffee (ID: 629)
+2025-06-14 20:10:13,844 - INFO - Import completed in 2.33 seconds
+2025-06-14 20:10:13,844 - INFO - Successfully created 2 products
+2025-06-14 20:10:13,844 - INFO -   - Basic T-Shirt (ID: 628, Type: simple)
+2025-06-14 20:10:13,844 - INFO -   - Organic Coffee (ID: 629, Type: simple)
+2025-06-14 20:10:13,844 - WARNING - Failed to create 5 products/variations
+2025-06-14 20:10:13,844 - WARNING -   - Row 3: 1 validation error for Product
+  Value error, Variable products must have attributes [type=value_error, input_value={'name': 'Premium Hoodie'...odie', 'attributes': []}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.11/v/value_error
+2025-06-14 20:10:13,845 - WARNING -   - Row 4: Variation found without a parent variable product
+2025-06-14 20:10:13,845 - WARNING -   - Row 5: Variation found without a parent variable product
+2025-06-14 20:10:13,845 - WARNING -   - Row 6: Variation found without a parent variable product
+2025-06-14 20:10:13,845 - WARNING -   - Row 7: Variation found without a parent variable product
+2025-06-14 20:10:13,845 - INFO - Product import complete!
+2025-06-14 20:10:13,845 - INFO - Check the log file for details: product_import_20250614_201011.log

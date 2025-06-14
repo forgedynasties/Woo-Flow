@@ -1,0 +1,76 @@
+2025-06-14 20:33:40,478 - INFO - Checking CSV format...
+2025-06-14 20:33:40,489 - INFO - Starting product import process...
+2025-06-14 20:33:40,490 - INFO - Using CSV file: d:\Woo-Kit\Backend\examples\products copy.csv
+2025-06-14 20:33:40,490 - ERROR - Error importing products from d:\Woo-Kit\Backend\examples\products copy.csv: read_csv() got an unexpected keyword argument 'error_bad_lines'. Did you mean 'on_bad_lines'?
+2025-06-14 20:33:40,490 - INFO - Trying alternative CSV parsing method...
+2025-06-14 20:33:40,491 - INFO - Successfully loaded 7 rows using alternative method
+2025-06-14 20:33:40,491 - DEBUG - Found 2 simple products and 1 variable products
+2025-06-14 20:33:40,495 - DEBUG - Starting new HTTPS connection (1): test-site.local:443
+2025-06-14 20:33:40,939 - DEBUG - https://test-site.local:443 "GET /wp-json/wc/v3/products/categories?slug=Clothing HTTP/1.1" 200 None
+2025-06-14 20:33:40,941 - DEBUG - Starting new HTTPS connection (1): test-site.local:443
+2025-06-14 20:33:41,055 - DEBUG - https://test-site.local:443 "GET /wp-json/wc/v3/products/categories?slug=T-Shirts HTTP/1.1" 200 None
+2025-06-14 20:33:41,057 - DEBUG - Starting new HTTPS connection (1): test-site.local:443
+2025-06-14 20:33:41,389 - DEBUG - https://test-site.local:443 "POST /wp-json/wc/v3/products HTTP/1.1" 201 None
+2025-06-14 20:33:41,390 - INFO - Created simple product: Basic T-Shirt (ID: 647)
+2025-06-14 20:33:41,391 - DEBUG - Starting new HTTPS connection (1): test-site.local:443
+2025-06-14 20:33:41,534 - DEBUG - https://test-site.local:443 "GET /wp-json/wc/v3/products/categories?slug=Food HTTP/1.1" 200 None
+2025-06-14 20:33:41,536 - DEBUG - Starting new HTTPS connection (1): test-site.local:443
+2025-06-14 20:33:41,661 - DEBUG - https://test-site.local:443 "GET /wp-json/wc/v3/products/categories?slug=Beverages HTTP/1.1" 200 None
+2025-06-14 20:33:41,663 - DEBUG - Starting new HTTPS connection (1): test-site.local:443
+2025-06-14 20:33:41,930 - DEBUG - https://test-site.local:443 "POST /wp-json/wc/v3/products HTTP/1.1" 201 None
+2025-06-14 20:33:41,931 - INFO - Created simple product: Organic Coffee (ID: 648)
+2025-06-14 20:33:41,932 - DEBUG - Processing variable product Premium Hoodie with 4 variations
+2025-06-14 20:33:41,932 - DEBUG - Processing variable product: Premium Hoodie
+2025-06-14 20:33:41,932 - DEBUG - Found 4 variations
+2025-06-14 20:33:41,932 - DEBUG - Parent attribute: Color with values: ['Red', 'Blue', 'Green']
+2025-06-14 20:33:41,932 - DEBUG - Parent attribute: Size with values: ['S', 'M', 'L', 'XL']
+2025-06-14 20:33:41,932 - DEBUG - Parent attribute: Material with values: ['Cotton', 'Polyester']
+2025-06-14 20:33:41,932 - DEBUG - Variation attribute: Color with value: Red
+2025-06-14 20:33:41,932 - DEBUG - Variation attribute: Size with value: S
+2025-06-14 20:33:41,932 - DEBUG - Variation attribute: Color with value: Red
+2025-06-14 20:33:41,932 - DEBUG - Variation attribute: Size with value: M
+2025-06-14 20:33:41,933 - DEBUG - Variation attribute: Color with value: Blue
+2025-06-14 20:33:41,933 - DEBUG - Variation attribute: Size with value: L
+2025-06-14 20:33:41,933 - DEBUG - Variation attribute: Color with value: Green
+2025-06-14 20:33:41,933 - DEBUG - Variation attribute: Size with value: XL
+2025-06-14 20:33:41,933 - DEBUG - Attributes used in variations: {'Color', 'Size'}
+2025-06-14 20:33:41,933 - DEBUG - Creating variable product with 3 attributes (2 variation attributes)
+2025-06-14 20:33:41,933 - DEBUG - Set basic fields for variable product: SKU=None, Regular Price=None, Sale Price=None
+2025-06-14 20:33:41,934 - DEBUG - Starting new HTTPS connection (1): test-site.local:443
+2025-06-14 20:33:42,068 - DEBUG - https://test-site.local:443 "GET /wp-json/wc/v3/products/categories?slug=Clothing HTTP/1.1" 200 None
+2025-06-14 20:33:42,070 - DEBUG - Starting new HTTPS connection (1): test-site.local:443
+2025-06-14 20:33:42,190 - DEBUG - https://test-site.local:443 "GET /wp-json/wc/v3/products/categories?slug=Hoodies HTTP/1.1" 200 None
+2025-06-14 20:33:42,192 - DEBUG - Starting new HTTPS connection (1): test-site.local:443
+2025-06-14 20:33:42,462 - DEBUG - https://test-site.local:443 "POST /wp-json/wc/v3/products HTTP/1.1" 201 None
+2025-06-14 20:33:42,463 - INFO - Created variable product: Premium Hoodie (ID: 649) with 3 attributes
+2025-06-14 20:33:42,463 - DEBUG - Processing variation attribute: Color=Red
+2025-06-14 20:33:42,464 - DEBUG - Processing variation attribute: Size=S
+2025-06-14 20:33:42,464 - DEBUG - Creating variation with attributes: [{'name': 'Color', 'option': 'Red'}, {'name': 'Size', 'option': 'S'}]
+2025-06-14 20:33:42,464 - DEBUG - Starting new HTTPS connection (1): test-site.local:443
+2025-06-14 20:33:42,749 - DEBUG - https://test-site.local:443 "POST /wp-json/wc/v3/products/649/variations HTTP/1.1" 201 None
+2025-06-14 20:33:42,750 - INFO - Created variation for product ID 649: 650
+2025-06-14 20:33:42,750 - DEBUG - Processing variation attribute: Color=Red
+2025-06-14 20:33:42,750 - DEBUG - Processing variation attribute: Size=M
+2025-06-14 20:33:42,750 - DEBUG - Creating variation with attributes: [{'name': 'Color', 'option': 'Red'}, {'name': 'Size', 'option': 'M'}]
+2025-06-14 20:33:42,751 - DEBUG - Starting new HTTPS connection (1): test-site.local:443
+2025-06-14 20:33:43,033 - DEBUG - https://test-site.local:443 "POST /wp-json/wc/v3/products/649/variations HTTP/1.1" 201 None
+2025-06-14 20:33:43,034 - INFO - Created variation for product ID 649: 651
+2025-06-14 20:33:43,035 - DEBUG - Processing variation attribute: Color=Blue
+2025-06-14 20:33:43,035 - DEBUG - Processing variation attribute: Size=L
+2025-06-14 20:33:43,035 - DEBUG - Creating variation with attributes: [{'name': 'Color', 'option': 'Blue'}, {'name': 'Size', 'option': 'L'}]
+2025-06-14 20:33:43,036 - DEBUG - Starting new HTTPS connection (1): test-site.local:443
+2025-06-14 20:33:43,369 - DEBUG - https://test-site.local:443 "POST /wp-json/wc/v3/products/649/variations HTTP/1.1" 201 None
+2025-06-14 20:33:43,370 - INFO - Created variation for product ID 649: 652
+2025-06-14 20:33:43,370 - DEBUG - Processing variation attribute: Color=Green
+2025-06-14 20:33:43,370 - DEBUG - Processing variation attribute: Size=XL
+2025-06-14 20:33:43,370 - DEBUG - Creating variation with attributes: [{'name': 'Color', 'option': 'Green'}, {'name': 'Size', 'option': 'XL'}]
+2025-06-14 20:33:43,371 - DEBUG - Starting new HTTPS connection (1): test-site.local:443
+2025-06-14 20:33:43,660 - DEBUG - https://test-site.local:443 "POST /wp-json/wc/v3/products/649/variations HTTP/1.1" 201 None
+2025-06-14 20:33:43,661 - INFO - Created variation for product ID 649: 653
+2025-06-14 20:33:43,661 - INFO - Import completed in 3.17 seconds
+2025-06-14 20:33:43,661 - INFO - Successfully created 3 products
+2025-06-14 20:33:43,661 - INFO -   - Basic T-Shirt (ID: 647, Type: simple)
+2025-06-14 20:33:43,661 - INFO -   - Organic Coffee (ID: 648, Type: simple)
+2025-06-14 20:33:43,661 - INFO -   - Premium Hoodie (ID: 649, Type: variable)
+2025-06-14 20:33:43,662 - INFO - Product import complete!
+2025-06-14 20:33:43,662 - INFO - Check the log file for details: product_import_20250614_203340.log
