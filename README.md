@@ -1,146 +1,80 @@
 # Woo-Kit
 
-A powerful toolkit for managing WooCommerce products with AI-powered description generation and batch processing capabilities.
+A powerful toolkit for managing WooCommerce products.
 
-## Features
+## Components
 
-### Current Features
-- Create simple and variable products with variations
-- Manage product attributes and categories
-- Handle product images with media ID support
-- Batch product creation and updates
-- Media upload and management
+- **Backend**: Python-based WooCommerce client library and FastAPI server
+- **Frontend**: (Coming soon) React-based admin interface
 
-### Upcoming Features
-- CSV-based product management
-- AI-powered product description generation
-- Batch processing with progress tracking
-- React-based frontend dashboard
-- FastAPI backend for high-performance operations
+## Backend
 
-## Project Structure
+The backend consists of two main components:
 
-```
-Backend/
-├── woo_client/         # WooCommerce API client implementation
-├── models/            # Data models for products and other entities
-├── examples/          # Example scripts and usage patterns
-├── tests/            # Test suite
-└── api/              # FastAPI implementation (coming soon)
-```
+1. **WooClient Library**: A Python client library for interacting with the WooCommerce REST API
+2. **FastAPI Server**: A RESTful API that wraps the WooClient library and provides endpoints for a frontend application
 
-## Setup
+### Setup and Installation
 
-1. Clone the repository
-2. Install dependencies:
+#### Prerequisites
+
+- Python 3.8+
+- WooCommerce store with REST API credentials
+
+#### Installation
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/yourusername/woo-kit.git
+   cd woo-kit/Backend
+   ```
+
+2. Create a virtual environment and activate it:
+
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. Install dependencies:
+
    ```bash
    pip install -r requirements.txt
    ```
-3. Create a `.env` file with your WooCommerce credentials:
+
+4. Create a `.env` file:
+
+   ```bash
+   cp .env.example .env
+   # Edit .env with your credentials
    ```
-   WC_KEY=your_api_key
-   WC_SECRET=your_api_secret
-   WC_URL=your_store_url
+
+#### Running the API
+
+```bash
+python run_api.py
+```
+
+The API will be available at http://localhost:8000.
+
+#### Using Docker
+
+1. Build and start the container:
+
+   ```bash
+   docker-compose up -d
    ```
 
-## Usage
+2. The API will be available at http://localhost:8000.
 
-### Basic Product Creation
-```python
-from woo_client import WooClient
-from models import Product
+### API Documentation
 
-client = WooClient(
-    api_key="your_api_key",
-    api_secret="your_api_secret",
-    store_url="your_store_url"
-)
+When the API is running, you can access the automatically generated documentation:
 
-# Create a simple product
-product = Product(
-    name="Test Product",
-    type="simple",
-    regular_price="19.99",
-    description="Product description"
-)
-
-created_product = client.products.create_product(product)
-```
-
-### Working with Media
-```python
-# Upload an image from URL and add it to a product
-product.add_image_from_url(
-    client=client,
-    image_url="https://example.com/image.jpg",
-    alt_text="Product Image"
-)
-
-# Upload an image from local file and add it to a product
-product.add_image_from_path(
-    client=client,
-    file_path="/path/to/local/image.jpg",
-    alt_text="Product Image"
-)
-```
-
-### Working with Categories
-```python
-# Get or create categories
-main_category = client.categories.get_or_create_category(name="Electronics")
-sub_category = client.categories.get_or_create_category(
-    name="Laptops", 
-    parent=main_category['id']
-)
-
-# Create nested categories with a path
-leaf_category = client.categories.get_or_create_category_tree("Home/Kitchen/Appliances")
-
-# Add a category to a product by ID
-product.add_category(category_id)
-
-# Add a category using a slug
-product.add_category("electronics")
-
-# Add a category with its full hierarchy
-product.add_category(
-    category="Electronics/Computers/Laptops", 
-    include_hierarchy=True, 
-    client=client
-)
-```
-
-### Creating Variable Products
-See `examples/create_test_product.py` for detailed examples of creating variable products with variations.
-
-## Upcoming Features
-
-### CSV Product Management
-- Import products from CSV files
-- Display products in a WordPress-like dashboard
-- Batch processing with progress tracking
-- AI-powered description generation
-
-### Frontend Dashboard
-- React-based user interface
-- Real-time progress tracking
-- Product preview and management
-- Configuration settings
-
-### API Integration
-- FastAPI backend for high-performance operations
-- Batch processing endpoints
-- AI integration for description generation
-- Configuration management
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+- Swagger UI: `http://localhost:8000/docs`
+- ReDoc: `http://localhost:8000/redoc`
 
 ## License
 
-MIT License - see LICENSE file for details
+[MIT License](LICENSE)

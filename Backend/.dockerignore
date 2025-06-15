@@ -1,0 +1,59 @@
+# Git
+.git
+.gitignore
+.github
+
+# Docker
+Dockerfile
+.docker
+.dockerignore
+
+# Environment files
+.env
+.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Tests
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Editor specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Documentation
+docs/
+
+# Temp files
+tmp/
+temp/
+
+# Log files
+*.log
