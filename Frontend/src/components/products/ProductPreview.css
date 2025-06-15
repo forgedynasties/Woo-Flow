@@ -2,10 +2,10 @@
   width: 100%;
 }
 
-.product-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
+.product-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .loading-container {
@@ -50,7 +50,7 @@
 }
 
 @media (max-width: 768px) {
-  .product-grid {
-    grid-template-columns: 1fr;
+  .product-list {
+    gap: 12px;
   }
 }

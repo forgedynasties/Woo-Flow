@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { fetchCategories } from '../api/categoryApi';
 import Tree from 'react-d3-tree';
-import { 
-  Box, 
-  Card, 
-  CardContent, 
-  Typography, 
-  IconButton, 
-  ToggleButton, 
+import { fetchCategories } from '../api/categoryApi';
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  IconButton,
+  ToggleButton,
   ToggleButtonGroup,
   CircularProgress,
   Paper
@@ -25,7 +25,7 @@ const Categories = ({ apiConfig }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [viewMode, setViewMode] = useState('table');
 
-  const loadCategories = useCallback(async () => {
+  const loadCategories = async () => {
     setIsLoading(true);
     try {
       const result = await fetchCategories(apiConfig);
@@ -36,13 +36,13 @@ const Categories = ({ apiConfig }) => {
     } finally {
       setIsLoading(false);
     }
-  }, [apiConfig]);
+  };
 
   useEffect(() => {
     if (apiConfig.api_key) {
       loadCategories();
     }
-  }, [apiConfig, loadCategories]);
+  }, [apiConfig]);
 
   const buildCategoryTree = (flatCategories) => {
     const idMapping = flatCategories.reduce((acc, category) => {
@@ -51,13 +51,13 @@ const Categories = ({ apiConfig }) => {
     }, {});
 
     const root = [];
-    
+
     flatCategories.forEach(category => {
       if (!category.parent) {
         root.push(category);
         return;
       }
-      
+
       if (idMapping[category.parent]) {
         if (!idMapping[category.parent].children) {
           idMapping[category.parent].children = [];
@@ -69,19 +69,27 @@ const Categories = ({ apiConfig }) => {
     return root;
   };
 
-  const treeData = useMemo(() => {
-    const transformCategory = (category) => ({
+  // Transform category data for react-d3-tree
+  const transformCategory = (category) => {
+    return {
       name: category.name,
       attributes: {
         count: category.count,
-        slug: category.slug,
-        description: category.description
+        slug: category.slug
       },
-      children: category.children ? category.children.map(transformCategory) : []
-    });
+      children: category.children ? category.children.map(child => transformCategory(child)) : []
+    };
+  };
 
-    return categories.map(transformCategory);
-  }, [categories]);
+  const treeData = categories.map(category => ({
+    name: category.name,
+    attributes: {
+      count: category.count,
+      slug: category.slug,
+      description: category.description
+    },
+    children: category.children ? category.children.map(transformCategory) : []
+  }));
 
   const renderGraph = () => (
     <Box sx={{ height: '600px', width: '100%' }}>
@@ -209,11 +217,11 @@ const renderCategoryRows = (categories, level = 0) => {
         </td>
       </tr>
     ];
-    
+
     if (category.children && category.children.length > 0) {
       rows.push(...renderCategoryRows(category.children, level + 1));
     }
-    
+
     return rows;
   });
 };

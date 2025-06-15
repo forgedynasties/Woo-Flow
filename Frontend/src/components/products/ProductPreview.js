@@ -1,5 +1,6 @@
 import React from 'react';
 import ProductCard from './ProductCard';
+import ProductFileStats from './ProductFileStats'; // New component
 import './ProductPreview.css';
 
 const ProductPreview = ({ products, isLoading }) => {
@@ -23,7 +24,10 @@ const ProductPreview = ({ products, isLoading }) => {
 
   return (
     <div className="product-preview">
-      <div className="product-grid">
+      {/* Product file statistics */}
+      <ProductFileStats products={products} />
+      
+      <div className="product-list">
         {products.map((product, index) => (
           <ProductCard key={`product-${index}`} product={product} />
         ))}
