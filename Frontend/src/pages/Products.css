@@ -6,34 +6,53 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .page-title {
-  font-size: 20px;
+  font-size: 24px;
   margin: 0;
-  color: #333;
+  color: #111827;
+  font-weight: 600;
 }
 
 .tabs {
   display: flex;
-  border-bottom: 1px solid #ddd;
-  margin-bottom: 20px;
+  border-bottom: 1px solid #E5E7EB;
+  margin-bottom: 24px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #D1D5DB transparent;
+}
+
+.tabs::-webkit-scrollbar {
+  height: 4px;
+}
+
+.tabs::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.tabs::-webkit-scrollbar-thumb {
+  background-color: #D1D5DB;
+  border-radius: 20px;
 }
 
 .tab {
-  padding: 10px 20px;
+  padding: 12px 24px;
   border: none;
   background: none;
   cursor: pointer;
   font-size: 15px;
   font-weight: 500;
-  color: #666;
+  color: #6B7280;
   position: relative;
+  white-space: nowrap;
+  transition: color 0.2s ease;
 }
 
 .tab.active {
-  color: #7066e0;
+  color: #6366F1;
 }
 
 .tab.active::after {
@@ -43,13 +62,24 @@
   left: 0;
   right: 0;
   height: 2px;
-  background-color: #7066e0;
+  background-color: #6366F1;
 }
 
 .tab:hover {
-  color: #7066e0;
+  color: #6366F1;
 }
 
 .tab-content {
   padding: 10px 0;
+}
+
+@media (max-width: 576px) {
+  .page-title {
+    font-size: 20px;
+  }
+  
+  .tab {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
 }

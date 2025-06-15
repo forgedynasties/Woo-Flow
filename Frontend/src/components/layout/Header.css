@@ -1,16 +1,20 @@
 .app-header {
   background-color: white;
-  padding: 15px 20px;
+  padding: 16px 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .header-title h1 {
   margin: 0;
   font-size: 24px;
-  color: #333;
+  color: #111827;
+  font-weight: 600;
 }
 
 .header-actions {
@@ -18,23 +22,49 @@
   gap: 10px;
 }
 
-.refresh-button {
+.header-button {
   display: flex;
   align-items: center;
-  gap: 5px;
-  padding: 8px 12px;
+  gap: 8px;
+  padding: 10px 16px;
   background-color: white;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
+  font-size: 14px;
+  color: #4B5563;
 }
 
-.refresh-button:hover {
-  border-color: #7066e0;
-  color: #7066e0;
+.header-button:hover {
+  border-color: #6366F1;
+  color: #6366F1;
+  background-color: #F9FAFB;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.refresh-button .material-icons {
+.header-button .material-icons {
   font-size: 18px;
+}
+
+@media (max-width: 576px) {
+  .button-text {
+    display: none;
+  }
+  
+  .header-button {
+    padding: 10px;
+  }
+  
+  .header-button .material-icons {
+    margin-right: 0;
+  }
+  
+  .app-header {
+    padding: 16px;
+  }
+  
+  .header-title h1 {
+    font-size: 20px;
+  }
 }

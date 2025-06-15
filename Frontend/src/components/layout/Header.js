@@ -10,9 +10,9 @@ const Header = ({ title, isApiConfigured, onRefresh }) => {
       
       <div className="header-actions">
         {isApiConfigured && (
-          <button onClick={onRefresh} className="refresh-button">
+          <button onClick={onRefresh} className="header-button">
             <span className="material-icons">refresh</span>
-            Refresh
+            <span className="button-text">Refresh</span>
           </button>
         )}
       </div>
