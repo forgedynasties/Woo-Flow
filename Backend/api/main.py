@@ -25,8 +25,8 @@ logger = logging.getLogger("api")
 
 # Create FastAPI app
 app = FastAPI(
-    title="Woo-Kit API",
-    description="API for managing WooCommerce products and store data",
+    title="Woo-Flow API",
+    description="API for managing WooCommerce products and store data (Woo-Flow)",
     version="1.0.0",
 )
 
@@ -35,7 +35,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",  # React development server
-        "https://woo-kit.example.com",  # Production frontend
+        "https://woo-flow.example.com",  # Production frontend
     ],
     allow_credentials=True,
     allow_methods=["*"],

@@ -1,4 +1,4 @@
-# Woo-Kit
+# Woo-Flow
 
 A powerful toolkit for managing WooCommerce products.
 
@@ -26,8 +26,8 @@ The backend consists of two main components:
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/yourusername/woo-kit.git
-   cd woo-kit/Backend
+   git clone https://github.com/yourusername/woo-flow.git
+   cd woo-flow/Backend
    ```
 
 2. Create a virtual environment and activate it:

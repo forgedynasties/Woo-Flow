@@ -20,7 +20,7 @@ host = os.getenv("API_HOST", "0.0.0.0")
 reload = os.getenv("API_RELOAD", "true").lower() == "true"
 
 if __name__ == "__main__":
-    print(f"\nStarting Woo-Kit API on {host}:{port}")
+    print(f"\nStarting Woo-Flow API on {host}:{port}")
     print(f"Debug mode: {'enabled' if reload else 'disabled'}")
     print("Press Ctrl+C to exit")
     

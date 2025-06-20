@@ -1,6 +1,6 @@
 # Product Creation Documentation
 
-This guide explains how to create products using the Woo-Kit backend library. The library provides a robust set of tools for creating both simple and variable products with various attributes, categories, and variations.
+This guide explains how to create products using the Woo-Flow backend library. The library provides a robust set of tools for creating both simple and variable products with various attributes, categories, and variations.
 
 ## Table of Contents
 1. [Basic Concepts](#basic-concepts)

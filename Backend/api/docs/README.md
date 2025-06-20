@@ -1,10 +1,10 @@
-# Woo-Kit API Documentation
+# Woo-Flow API Documentation
 
-This document provides an overview of the Woo-Kit API, which serves as a backend for the Woo-Kit application.
+This document provides an overview of the Woo-Flow API, which serves as a backend for the Woo-Flow application.
 
 ## Overview
 
-The Woo-Kit API is built using FastAPI and provides a RESTful interface to WooCommerce functionality. It allows you to manage products, categories, attributes, and media items in your WooCommerce store.
+The Woo-Flow API is built using FastAPI and provides a RESTful interface to WooCommerce functionality. It allows you to manage products, categories, attributes, and media items in your WooCommerce store.
 
 ## Authentication
 

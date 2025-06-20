@@ -1,6 +1,6 @@
-# Woo-Kit API Testing Guide
+# Woo-Flow API Testing Guide
 
-This guide provides comprehensive instructions for testing the Woo-Kit API.
+This guide provides comprehensive instructions for testing the Woo-Flow API.
 
 ## Test Environment Setup
 
