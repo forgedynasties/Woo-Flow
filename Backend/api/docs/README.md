@@ -45,6 +45,7 @@ You can set these variables in a `.env` file in the root directory.
 - `POST /api/products`: Create a new product
 - `PUT /api/products/{product_id}`: Update an existing product
 - `DELETE /api/products/{product_id}`: Delete a product
+- `POST /api/products/upload/csv`: Upload and import products from a CSV file
 
 ### Product Variations
 
@@ -84,6 +85,41 @@ You can set these variables in a `.env` file in the root directory.
 
 - `GET /api/store/info`: Get store information
 - `GET /api/store/orders`: Get a list of orders
+
+## CSV Import
+
+The API supports bulk product import via CSV file upload.
+
+- **Endpoint**: `POST /api/products/upload/csv`
+- **Request Type**: `multipart/form-data`
+- **`file`**: The CSV file to upload.
+
+### Example Usage (cURL)
+
+```bash
+curl -X POST "http://localhost:8000/api/products/upload/csv" \
+     -H "Content-Type: multipart/form-data" \
+     -H "X-API-Key: your_api_key" \
+     -F "file=@/path/to/your/products.csv"
+```
+
+### Response Format
+
+The endpoint returns a JSON object with a summary of the import process:
+
+```json
+{
+  "created": [
+    { "id": 123, "name": "New Product 1", "sku": "NP001" },
+    { "id": 124, "name": "New Product 2", "sku": "NP002" }
+  ],
+  "failed": [
+    { "row": 5, "error": "Invalid SKU" }
+  ]
+}
+```
+
+For more details on the required CSV format, see the [sample template](/Backend/examples/csv_sample_template.csv).
 
 ## Running the API
 

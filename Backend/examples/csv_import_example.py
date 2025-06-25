@@ -104,11 +104,6 @@ def import_products_from_csv(csv_file_path: str):
         return {"error": str(e)}
 
 if __name__ == "__main__":
-    # Check if a CSV file path was provided as a command-line argument
-    if len(sys.argv) > 1:
-        csv_path = sys.argv[1]
-    else:
-        # Use the example CSV file
-        csv_path = os.path.join(os.path.dirname(__file__), "products copy.csv")
-    
+    # Use the example CSV file
+    csv_path = os.path.join(os.path.dirname(__file__), "products copy.csv")
     import_products_from_csv(csv_path)

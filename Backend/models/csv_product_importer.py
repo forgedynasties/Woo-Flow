@@ -77,43 +77,37 @@ class CSVProductImporter:
             Dictionary with created and failed products
         """
         try:
-            # Use pandas to read CSV with more robust handling
-            df = pd.read_csv(
-                file_path, 
-                delimiter=delimiter,
-                quotechar='"',  # Use double quotes for quoting
-                escapechar='\\',  # Use backslash as escape character
-                doublequote=True,  # Interpret two consecutive quotes as one
-                error_bad_lines=False,  # Skip bad lines
-                warn_bad_lines=True  # Warn on bad lines
-            )
+            self.logger.info(f"Attempting to parse CSV file: {file_path}")
             
-            # Display the shape of the DataFrame to help with debugging
-            self.logger.debug(f"CSV file loaded. Shape: {df.shape}")
-            
-            # Convert to list of dictionaries
-            products_data = df.to_dict('records')
+            # Use a robust CSV reader
+            products_data = []
+            with open(file_path, 'r', encoding='utf-8-sig') as f:
+                # Sniff the delimiter to be more robust
+                try:
+                    dialect = csv.Sniffer().sniff(f.read(1024), delimiters=',\t;')
+                    f.seek(0)
+                    reader = csv.DictReader(f, dialect=dialect)
+                except csv.Error:
+                    self.logger.warning("Could not detect CSV dialect, falling back to default comma delimiter.")
+                    f.seek(0)
+                    reader = csv.DictReader(f)
+
+                for row in reader:
+                    products_data.append(row)
+                    
+            self.logger.info(f"Successfully loaded {len(products_data)} rows from CSV.")
             return self.import_from_list(products_data)
         except Exception as e:
-            self.logger.error(f"Error importing products from {file_path}: {str(e)}")
-            
-            # Try a more robust CSV reader as fallback
-            try:
-                self.logger.info("Trying alternative CSV parsing method...")
-                
-                import csv
-                products_data = []
-                
-                with open(file_path, 'r', encoding='utf-8-sig') as f:
-                    reader = csv.DictReader(f)
-                    for row in reader:
-                        products_data.append(row)
-                        
-                self.logger.info(f"Successfully loaded {len(products_data)} rows using alternative method")
-                return self.import_from_list(products_data)
-            except Exception as fallback_error:
-                self.logger.error(f"Fallback CSV parsing also failed: {str(fallback_error)}")
-                raise e
+            self.logger.error(f"Failed to import products from {file_path}: {str(e)}")
+            import traceback
+            self.logger.error(traceback.format_exc())
+            # Optionally, you might want to return the state of created/failed products
+            # even if the process was interrupted.
+            return {
+                "created": self.created_products,
+                "failed": self.failed_products,
+                "error": str(e)
+            }
     
     def import_from_list(self, products_data: List[Dict]) -> Dict[str, List]:
         """

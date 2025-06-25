@@ -1,5 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query, Path
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Path, File, UploadFile
 from typing import List, Dict, Any, Optional
+import shutil
+import os
+import logging
 
 from woo_client import WooClient
 from api.dependencies import get_woo_client
@@ -9,8 +12,12 @@ from api.models import (
     ErrorResponse, ProductStatus
 )
 from models import Product
+from models.csv_product_importer import CSVProductImporter
 
 router = APIRouter()
+
+# Get a logger instance
+logger = logging.getLogger(__name__)
 
 @router.get("", response_model=List[ProductResponse])
 async def get_products(
@@ -206,3 +213,105 @@ async def delete_variation(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Failed to delete variation: {str(e)}"
         )
+
+@router.post("/upload/csv", summary="Upload and import products from a CSV file", response_model=Dict[str, Any])
+async def upload_and_import_csv(
+    file: UploadFile = File(..., description="CSV file containing product data."),
+    woo_client: WooClient = Depends(get_woo_client)
+):
+    """
+    Uploads a CSV file to import products into WooCommerce.
+
+    This endpoint provides a robust way to bulk-create products, including simple,
+    variable, and variation types. The CSV is processed by the backend, which
+    handles parsing and product creation.
+
+    ### CSV Format:
+
+    The CSV file must have a header row. The following are key columns:
+
+    - **`type`**: `simple`, `variable`, or `variation`. This is crucial.
+    - **`name`**: Product name. Required for `simple` and `variable` types.
+    - **`sku`**: Stock Keeping Unit. Must be unique.
+    - **`regular_price`**: The product's regular price.
+    - **`sale_price`**: The product's sale price (optional).
+    - **`description`**: Detailed product description (optional).
+    - **`short_description`**: Brief product summary (optional).
+    - **`categories`**: Comma-separated list of category names (e.g., "Clothing, T-Shirts").
+    - **`images`**: Comma-separated list of image URLs.
+    - **`manage_stock`**: `TRUE` or `FALSE`.
+    - **`stock_quantity`**: The number of items in stock.
+    - **`Attribute: {Name}`**: For defining attributes (e.g., `Attribute: Color`).
+      - For variations, the value in this column specifies the term (e.g., "Blue").
+      - For variable products, provide a comma-separated list of terms (e.g., "Blue, Green, Red").
+
+    #### Simple Products:
+    - Set `type` to `simple`.
+    - Fill in standard product details like `name`, `sku`, `price`, etc.
+
+    #### Variable Products & Variations:
+    1.  **Parent `variable` product**:
+        - Set `type` to `variable`.
+        - Define the attributes for variations in `Attribute: {Name}` columns
+          (e.g., `Attribute: Color` with value "Blue, Green", `Attribute: Size` with value "S, M, L").
+    2.  **Child `variation` products**:
+        - Add a new row for each variation immediately after the parent.
+        - Set `type` to `variation`.
+        - Set the specific attribute value for that variation (e.g., `Attribute: Color` with value "Blue").
+        - **Important**: The `sku` and `regular_price` for variations are required.
+
+    ### Processing:
+    1. The uploaded file is saved temporarily on the server.
+    2. The `CSVProductImporter` is used to parse the file and interact with the WooCommerce API.
+    3. After processing, the temporary file is deleted.
+
+    ### Response:
+    - Returns a JSON object with a summary of the import, including `created` and `failed` lists.
+    - The `failed` list will contain details on which rows failed and why.
+    """
+    # Create a temporary file to store the upload
+    temp_dir = "temp_uploads"
+    os.makedirs(temp_dir, exist_ok=True)
+    temp_file_path = os.path.join(temp_dir, file.filename)
+
+    try:
+        # Save the uploaded file
+        with open(temp_file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+
+        logger.info(f"CSV file '{file.filename}' uploaded and saved to '{temp_file_path}'.")
+
+        # Initialize the importer
+        importer = CSVProductImporter(client=woo_client, logger=logger)
+
+        # Start the import process
+        results = importer.import_from_file(temp_file_path)
+        
+        # Check for errors in the results and return appropriate status
+        if "error" in results:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Failed to process CSV file: {results['error']}"
+            )
+            
+        logger.info(f"Import finished for '{file.filename}'. Results: {results}")
+        
+        return results
+
+    except HTTPException as http_exc:
+        # Re-raise HTTP exceptions to be handled by FastAPI
+        raise http_exc
+    except Exception as e:
+        logger.error(f"An unexpected error occurred during CSV import: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An unexpected error occurred: {str(e)}"
+        )
+    finally:
+        # Ensure the temporary file is deleted
+        if os.path.exists(temp_file_path):
+            os.remove(temp_file_path)
+            logger.info(f"Temporary file '{temp_file_path}' deleted.")
+        
+        # Close the uploaded file
+        file.file.close()

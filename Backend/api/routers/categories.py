@@ -15,11 +15,10 @@ async def get_categories(
     woo_client: WooClient = Depends(get_woo_client)
 ):
     """Get a list of product categories"""
-    params = {"per_page": per_page, "page": page}
-    
+    # CategoryClient.get_categories only supports per_page and parent
+    params = {"per_page": per_page}
     if parent is not None:
         params["parent"] = parent
-        
     try:
         categories = woo_client.categories.get_categories(**params)
         return categories
