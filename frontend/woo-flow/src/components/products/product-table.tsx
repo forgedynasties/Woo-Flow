@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { deleteProduct } from '@/services/product-service';
 
 interface Product {
   id: number;
@@ -21,6 +22,7 @@ interface ProductTableProps {
 
 export function ProductTable({ products, isLoading, onRefresh }: ProductTableProps) {
   const [search, setSearch] = useState("");
+  const [deletingId, setDeletingId] = useState<number | null>(null);
   
   const filteredProducts = products.filter(
     product => 
@@ -29,6 +31,19 @@ export function ProductTable({ products, isLoading, onRefresh }: ProductTablePro
       product.category.toLowerCase().includes(search.toLowerCase())
   );
   
+  const handleDelete = async (id: number) => {
+    if (!window.confirm('Are you sure you want to delete this product?')) return;
+    setDeletingId(id);
+    try {
+      await deleteProduct(id, true);
+      onRefresh();
+    } catch (e) {
+      alert('Failed to delete product.');
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   return (
     <div className="bg-card p-6 rounded-lg shadow-sm">
       <div className="flex justify-between items-center mb-4">
@@ -101,7 +116,11 @@ export function ProductTable({ products, isLoading, onRefresh }: ProductTablePro
                       <button className="p-1 text-blue-500 hover:text-blue-700">
                         <span className="material-icons text-sm">edit</span>
                       </button>
-                      <button className="p-1 text-red-500 hover:text-red-700">
+                      <button 
+                        className={`p-1 text-red-500 hover:text-red-700 ${deletingId === product.id ? 'opacity-50 pointer-events-none' : ''}`}
+                        onClick={() => handleDelete(product.id)}
+                        disabled={deletingId === product.id}
+                      >
                         <span className="material-icons text-sm">delete</span>
                       </button>
                       <button className="p-1 text-gray-500 hover:text-gray-700">

@@ -53,6 +53,8 @@ export function ImportProductsModal({ isOpen, onClose }: ImportProductsModalProp
   const [imageDir, setImageDir] = useState<FileList | null>(null);
   const [importResult, setImportResult] = useState<{created: any[], failed: any[]} | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showNotification, setShowNotification] = useState(false);
+  const [notificationMsg, setNotificationMsg] = useState<string | null>(null);
   const imageDirInputRef = useRef<HTMLInputElement | null>(null);
   
   useEffect(() => {
@@ -88,16 +90,11 @@ export function ImportProductsModal({ isOpen, onClose }: ImportProductsModalProp
 
   const handleImport = async () => {
     if (!file) return;
-    
     setCurrentStep('importing');
     setIsUploading(true);
     setError(null);
-    
     try {
-      // Reset progress
       setUploadProgress(0);
-      
-      // Simulate progress updates
       const progressInterval = setInterval(() => {
         setUploadProgress(prev => {
           if (prev >= 90) {
@@ -107,34 +104,22 @@ export function ImportProductsModal({ isOpen, onClose }: ImportProductsModalProp
           return prev + 5;
         });
       }, 300);
-      
-      // Perform the actual API call to import products
       const result = await importProductsFromCsv(file);
-      
-      // Mark as complete
       clearInterval(progressInterval);
       setUploadProgress(100);
       setImportResult(result);
-      
-      // Wait a bit before closing or showing results
-      setTimeout(() => {
-        // If there are errors, stay on the importing screen but show the error details
-        if (result.failed && result.failed.length > 0) {
-          setError(`Import completed with ${result.failed.length} errors.`);
-        } else {
-          // On success, close the modal
-          setIsUploading(false);
-          setFile(null);
-          setCsvData(null);
-          setUploadProgress(0);
-          setCurrentStep('upload');
-          onClose();
-        }
-      }, 500);
+      // Show notification after import
+      const created = result.created?.length || 0;
+      const failed = result.failed?.length || 0;
+      setNotificationMsg(`Imported ${created} product${created === 1 ? '' : 's'}${failed ? `, ${failed} failed` : ''}.`);
+      setShowNotification(true);
+      setTimeout(() => setShowNotification(false), 5000);
+      // Do NOT close the modal automatically; let the user review results
+      setIsUploading(false);
     } catch (err) {
-      // Handle errors
       setError(err instanceof Error ? err.message : 'An unknown error occurred during import');
       setUploadProgress(0);
+      setIsUploading(false);
     }
   };
   
@@ -148,6 +133,16 @@ export function ImportProductsModal({ isOpen, onClose }: ImportProductsModalProp
   return (
     <div className="fixed inset-0 top-0 left-0 w-screen h-screen bg-black bg-opacity-50 flex items-center justify-center z-50 p-0">
       <div className="bg-card text-card-foreground p-6 rounded-lg shadow-lg max-w-5xl w-full max-h-[90vh] flex flex-col overflow-y-auto">
+        {/* Notification */}
+        {showNotification && notificationMsg && (
+          <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-green-100 text-green-800 px-6 py-3 rounded shadow flex items-center gap-2">
+            <span className="material-icons">check_circle</span>
+            <span>{notificationMsg}</span>
+            <button className="ml-2 text-green-800 hover:text-green-900" onClick={() => setShowNotification(false)}>
+              <span className="material-icons text-base">close</span>
+            </button>
+          </div>
+        )}
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xl font-semibold">
             {currentStep === 'upload' && 'Import Products from CSV'}
@@ -283,6 +278,40 @@ export function ImportProductsModal({ isOpen, onClose }: ImportProductsModalProp
                 </div>
               )}
               
+              {importResult && (importResult.created.length > 0 || importResult.failed.length > 0) && (
+                <div className="mt-6">
+                  {importResult.created.length > 0 && (
+                    <div className="mb-6">
+                      <h4 className="font-medium mb-2 text-green-700">Successfully Imported Products</h4>
+                      <CSVPreview data={importResult.created} fileName="Imported Products" />
+                    </div>
+                  )}
+                  {importResult.failed.length > 0 && (
+                    <div>
+                      <h4 className="font-medium mb-2 text-red-700">Failed Imports</h4>
+                      <div className="border border-red-200 rounded-lg overflow-hidden max-h-[40vh]">
+                        <table className="w-full">
+                          <thead>
+                            <tr className="bg-red-50">
+                              <th className="py-2 px-3 text-left text-xs font-medium text-red-700 uppercase tracking-wider">Row</th>
+                              <th className="py-2 px-3 text-left text-xs font-medium text-red-700 uppercase tracking-wider">Error</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {importResult.failed.map((item, idx) => (
+                              <tr key={idx} className={idx % 2 === 0 ? 'bg-card' : 'bg-red-50'}>
+                                <td className="py-2 px-3 text-sm">{item.row}</td>
+                                <td className="py-2 px-3 text-sm">{item.error}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+              
               <div className="text-sm text-muted-foreground bg-muted/30 p-4 rounded-md mt-4">
                 <p className="flex items-center">
                   <span className="material-icons text-amber-500 mr-2">info</span>
@@ -321,14 +350,20 @@ export function ImportProductsModal({ isOpen, onClose }: ImportProductsModalProp
             </button>
           )}
 
-          {currentStep === 'importing' && error && (
+          {currentStep === 'importing' && (
             <button 
-              className="px-4 py-2 bg-muted text-muted-foreground rounded-md hover:bg-opacity-80"
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-opacity-80 flex items-center"
               onClick={() => {
                 setCurrentStep('upload');
                 setIsUploading(false);
                 setError(null);
+                setImportResult(null);
+                setFile(null);
+                setCsvData(null);
+                setUploadProgress(0);
+                onClose();
               }}
+              disabled={isUploading}
             >
               Close
             </button>

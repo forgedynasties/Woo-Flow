@@ -33,7 +33,6 @@ export function CSVPreview({ data, fileName }: CSVPreviewProps) {
   // Group by product type
   const simpleProducts = data.filter(item => item.type === 'simple');
   const variableProducts = data.filter(item => item.type === 'variable');
-  const variations = data.filter(item => item.type === 'variation');
   
   return (
     <div className="overflow-y-auto">
@@ -71,10 +70,6 @@ export function CSVPreview({ data, fileName }: CSVPreviewProps) {
           <li className="flex">
             <span className="text-sm text-muted-foreground w-32">Variable Products:</span>
             <span className="font-medium">{variableProducts.length}</span>
-          </li>
-          <li className="flex">
-            <span className="text-sm text-muted-foreground w-32">Variations:</span>
-            <span className="font-medium">{variations.length}</span>
           </li>
         </ul>
       </div>
