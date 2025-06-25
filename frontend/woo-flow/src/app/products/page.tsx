@@ -4,8 +4,9 @@ import { useState, useEffect } from "react";
 import { ProductStats } from "@/components/products/product-stats";
 import { ProductUtilities } from "@/components/products/product-actions";
 import { ProductTable } from "@/components/products/product-table";
+import { fetchProducts, Product as ApiProduct } from '@/services/product-service';
 
-// Define the Product interface
+// Define the Product interface for the component
 interface Product {
   id: number;
   name: string;
@@ -19,6 +20,7 @@ interface Product {
 export default function ProductsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [products, setProducts] = useState<Product[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const [stats, setStats] = useState({
     totalProducts: 0,
     inStock: 0,
@@ -26,34 +28,45 @@ export default function ProductsPage() {
     categories: 0,
   });
 
-  // Dummy function to load products from API
   const loadProducts = async () => {
     setIsLoading(true);
+    setError(null);
     
-    // Using dummy data for now
-    setTimeout(() => {
-      const dummyProducts = Array(10).fill(0).map((_, i) => ({
-        id: i + 1,
-        name: `Product ${i + 1}`,
-        sku: `SKU-${1000 + i}`,
-        price: `$${(Math.random() * 100).toFixed(2)}`,
-        stock: Math.floor(Math.random() * 50),
-        category: ['Clothing', 'Electronics', 'Home', 'Books'][Math.floor(Math.random() * 4)],
-        status: Math.random() > 0.2 ? 'Published' : 'Draft'
+    try {
+      const fetchedProducts = await fetchProducts();
+      
+      // Map API products to the format expected by the ProductTable component
+      const mappedProducts: Product[] = fetchedProducts.map(product => ({
+        id: product.id,
+        name: product.name,
+        sku: product.sku || '',
+        price: product.regular_price || product.price || '',
+        stock: product.stock_quantity || 0,
+        category: product.categories?.length ? product.categories[0].name : '',
+        status: product.status || 'publish'
       }));
       
-      setProducts(dummyProducts);
+      setProducts(mappedProducts);
       
       // Calculate stats from products
-      setStats({
-        totalProducts: dummyProducts.length,
-        inStock: dummyProducts.filter(p => p.stock > 0).length,
-        outOfStock: dummyProducts.filter(p => p.stock === 0).length,
-        categories: new Set(dummyProducts.map(p => p.category)).size
-      });
+      const categorySet = new Set(fetchedProducts.flatMap(p => 
+        p.categories?.map(c => c.name) || []
+      ));
       
+      setStats({
+        totalProducts: fetchedProducts.length,
+        inStock: fetchedProducts.filter(p => p.stock_status === 'instock').length,
+        outOfStock: fetchedProducts.filter(p => p.stock_status !== 'instock').length,
+        categories: categorySet.size
+      });
+    } catch (err) {
+      console.error('Error fetching products:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load products');
+      // Set empty products on error
+      setProducts([]);
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   useEffect(() => {
@@ -69,6 +82,25 @@ export default function ProductsPage() {
       <ProductStats stats={stats} isLoading={isLoading} />
       
       <ProductUtilities />
+      
+      {error && (
+        <div className="bg-red-50 text-red-700 p-4 rounded-lg border border-red-200">
+          <div className="flex items-center">
+            <span className="material-icons mr-2">error</span>
+            <p>{error}</p>
+          </div>
+          <p className="mt-2 text-sm">
+            Make sure your API server is running and properly configured in the settings.
+          </p>
+          <button 
+            onClick={loadProducts} 
+            className="mt-2 px-3 py-1 bg-red-100 hover:bg-red-200 text-red-800 text-sm rounded flex items-center"
+          >
+            <span className="material-icons text-sm mr-1">refresh</span>
+            Retry
+          </button>
+        </div>
+      )}
       
       <ProductTable 
         products={products} 

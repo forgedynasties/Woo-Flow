@@ -1,11 +1,39 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Path
 from typing import List, Dict, Any, Optional
+import logging
 
 from woo_client import WooClient
 from api.dependencies import get_woo_client
 from api.models import CategoryCreate, CategoryUpdate, CategoryResponse, CategoryTreeRequest
 
 router = APIRouter()
+
+@router.get("/count", summary="Get total category count", response_model=dict)
+async def get_category_count(
+    woo_client: WooClient = Depends(get_woo_client)
+):
+    """Get the total number of categories"""
+    try:
+        categories = woo_client.categories.get_categories(per_page=100)
+        total = 0
+        logger = logging.getLogger("api.categories.count")
+        headers = None
+        if hasattr(woo_client.categories, 'last_response') and hasattr(woo_client.categories.last_response, 'headers'):
+            headers = woo_client.categories.last_response.headers
+            logger.info(f"Category count headers: {headers}")
+            if 'X-WP-Total' in headers:
+                total = int(headers['X-WP-Total'])
+        if not total:
+            total = len(categories)
+        logger.info(f"Category count result: {total}")
+        return {"count": total}
+    except Exception as e:
+        logger = logging.getLogger("api.categories.count")
+        logger.error(f"Error in /categories/count: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get category count: {str(e)}"
+        )
 
 @router.get("", response_model=List[CategoryResponse])
 async def get_categories(

@@ -35,7 +35,16 @@ async def create_media_from_url(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Either url or file_path must be provided"
             )
-            
+        # Ensure 'src' field is present in the response
+        if isinstance(media, dict):
+            if 'src' not in media:
+                # Try to map from 'source_url' or nested fields
+                if 'source_url' in media:
+                    media['src'] = media['source_url']
+                elif 'guid' in media and isinstance(media['guid'], dict) and 'rendered' in media['guid']:
+                    media['src'] = media['guid']['rendered']
+                else:
+                    media['src'] = ''
         return media
     except Exception as e:
         raise HTTPException(
@@ -64,6 +73,15 @@ async def upload_media(
                 alt_text=alt_text or file.filename,
                 title=title or file.filename
             )
+            # Ensure 'src' field is present in the response
+            if isinstance(media, dict):
+                if 'src' not in media:
+                    if 'source_url' in media:
+                        media['src'] = media['source_url']
+                    elif 'guid' in media and isinstance(media['guid'], dict) and 'rendered' in media['guid']:
+                        media['src'] = media['guid']['rendered']
+                    else:
+                        media['src'] = ''
             return media
         finally:
             # Clean up temporary file
@@ -83,6 +101,15 @@ async def get_media(
     """Get a specific media item by ID"""
     try:
         media = woo_client.media.get_media(media_id)
+        # Ensure 'src' field is present in the response
+        if isinstance(media, dict):
+            if 'src' not in media:
+                if 'source_url' in media:
+                    media['src'] = media['source_url']
+                elif 'guid' in media and isinstance(media['guid'], dict) and 'rendered' in media['guid']:
+                    media['src'] = media['guid']['rendered']
+                else:
+                    media['src'] = ''
         return media
     except Exception as e:
         raise HTTPException(

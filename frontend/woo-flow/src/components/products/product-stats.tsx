@@ -36,13 +36,6 @@ export function ProductStats({ stats, isLoading }: ProductStatsProps) {
         color="bg-red-100 text-red-600" 
         isLoading={isLoading}
       />
-      <StatCard 
-        title="Categories" 
-        value={stats.categories} 
-        icon="category"
-        color="bg-purple-100 text-purple-600" 
-        isLoading={isLoading}
-      />
     </div>
   );
 }

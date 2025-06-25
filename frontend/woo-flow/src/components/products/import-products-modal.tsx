@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { CSVPreview } from "./csv-preview";
 import { parseCsvFile } from "@/lib/csv-parser";
+import { importProductsFromCsv } from "@/services/product-service";
 
 interface ImportProductsModalProps {
   isOpen: boolean;
@@ -50,6 +51,8 @@ export function ImportProductsModal({ isOpen, onClose }: ImportProductsModalProp
   const [csvData, setCsvData] = useState<any[] | null>(null);
   const [currentStep, setCurrentStep] = useState<'upload' | 'preview' | 'importing'>('upload');
   const [imageDir, setImageDir] = useState<FileList | null>(null);
+  const [importResult, setImportResult] = useState<{created: any[], failed: any[]} | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const imageDirInputRef = useRef<HTMLInputElement | null>(null);
   
   useEffect(() => {
@@ -88,38 +91,51 @@ export function ImportProductsModal({ isOpen, onClose }: ImportProductsModalProp
     
     setCurrentStep('importing');
     setIsUploading(true);
+    setError(null);
     
-    // Simulate file upload progress
-    const interval = setInterval(() => {
-      setUploadProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          return 100;
-        }
-        return prev + 10;
-      });
-    }, 300);
-    
-    // In a real implementation, you would upload the file to your backend
-    // const formData = new FormData();
-    // formData.append('file', file);
-    // await fetch('/api/products/import', { method: 'POST', body: formData });
-    
-    // Simulate API call
-    setTimeout(() => {
-      clearInterval(interval);
-      setUploadProgress(100);
+    try {
+      // Reset progress
+      setUploadProgress(0);
       
-      // Wait a bit before closing the modal to show 100% progress
+      // Simulate progress updates
+      const progressInterval = setInterval(() => {
+        setUploadProgress(prev => {
+          if (prev >= 90) {
+            clearInterval(progressInterval);
+            return 90;
+          }
+          return prev + 5;
+        });
+      }, 300);
+      
+      // Perform the actual API call to import products
+      const result = await importProductsFromCsv(file);
+      
+      // Mark as complete
+      clearInterval(progressInterval);
+      setUploadProgress(100);
+      setImportResult(result);
+      
+      // Wait a bit before closing or showing results
       setTimeout(() => {
-        setIsUploading(false);
-        setFile(null);
-        setCsvData(null);
-        setUploadProgress(0);
-        setCurrentStep('upload');
-        onClose();
+        // If there are errors, stay on the importing screen but show the error details
+        if (result.failed && result.failed.length > 0) {
+          setError(`Import completed with ${result.failed.length} errors.`);
+        } else {
+          // On success, close the modal
+          setIsUploading(false);
+          setFile(null);
+          setCsvData(null);
+          setUploadProgress(0);
+          setCurrentStep('upload');
+          onClose();
+        }
       }, 500);
-    }, 3000);
+    } catch (err) {
+      // Handle errors
+      setError(err instanceof Error ? err.message : 'An unknown error occurred during import');
+      setUploadProgress(0);
+    }
   };
   
   const handleBack = () => {
@@ -238,7 +254,36 @@ export function ImportProductsModal({ isOpen, onClose }: ImportProductsModalProp
                 </div>
               </div>
               
-              <div className="text-sm text-muted-foreground bg-muted/30 p-4 rounded-md">
+              {error && (
+                <div className="text-sm text-red-500 bg-red-50 p-4 rounded-md mb-4">
+                  <p className="flex items-center">
+                    <span className="material-icons text-red-500 mr-2">error</span>
+                    {error}
+                  </p>
+                  
+                  {importResult && importResult.failed && importResult.failed.length > 0 && (
+                    <div className="mt-3 max-h-40 overflow-y-auto bg-white p-2 rounded border border-red-200">
+                      <h4 className="font-medium mb-2">Failed items:</h4>
+                      <ul className="list-disc list-inside">
+                        {importResult.failed.map((item, index) => (
+                          <li key={index} className="text-xs">{`Row ${item.row}: ${item.error}`}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+              
+              {importResult && importResult.created && importResult.created.length > 0 && !error && (
+                <div className="text-sm text-green-600 bg-green-50 p-4 rounded-md">
+                  <p className="flex items-center">
+                    <span className="material-icons text-green-500 mr-2">check_circle</span>
+                    Successfully imported {importResult.created.length} products.
+                  </p>
+                </div>
+              )}
+              
+              <div className="text-sm text-muted-foreground bg-muted/30 p-4 rounded-md mt-4">
                 <p className="flex items-center">
                   <span className="material-icons text-amber-500 mr-2">info</span>
                   This may take a few minutes depending on the number of products.
@@ -273,6 +318,19 @@ export function ImportProductsModal({ isOpen, onClose }: ImportProductsModalProp
             >
               Import Products
               <span className="material-icons text-sm ml-1">file_upload</span>
+            </button>
+          )}
+
+          {currentStep === 'importing' && error && (
+            <button 
+              className="px-4 py-2 bg-muted text-muted-foreground rounded-md hover:bg-opacity-80"
+              onClick={() => {
+                setCurrentStep('upload');
+                setIsUploading(false);
+                setError(null);
+              }}
+            >
+              Close
             </button>
           )}
         </div>

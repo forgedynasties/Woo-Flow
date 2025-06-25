@@ -61,8 +61,8 @@ async def get_api_settings(settings: Settings = Depends(get_settings)):
     masked_settings = settings.copy()
     if masked_settings.wc_secret:
         masked_settings.wc_secret = "********"
-    if masked_settings.wp_password:
-        masked_settings.wp_password = "********"
+    if masked_settings.wp_secret:
+        masked_settings.wp_secret = "********"
     return masked_settings
 
 class SSLSettings(BaseModel):
@@ -81,8 +81,8 @@ async def update_ssl_settings(
     # Mask sensitive information
     if updated_settings.wc_secret:
         updated_settings.wc_secret = "********"
-    if updated_settings.wp_password:
-        updated_settings.wp_password = "********"
+    if updated_settings.wp_secret:
+        updated_settings.wp_secret = "********"
     
     return updated_settings
 

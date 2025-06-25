@@ -19,6 +19,31 @@ router = APIRouter()
 # Get a logger instance
 logger = logging.getLogger(__name__)
 
+@router.get("/count", summary="Get total product count", response_model=dict)
+async def get_product_count(
+    woo_client: WooClient = Depends(get_woo_client)
+):
+    """Get the total number of products"""
+    try:
+        # Try to use WooCommerce API's HEAD request or meta if available
+        # Fallback: fetch first page and get total from headers or count
+        products = woo_client.products.get_products(per_page=1, page=1)
+        # If WooClient exposes total count, use it; else, fallback to len(products)
+        total = 0
+        if hasattr(woo_client.products, 'last_response') and hasattr(woo_client.products.last_response, 'headers'):
+            headers = woo_client.products.last_response.headers
+            if 'X-WP-Total' in headers:
+                total = int(headers['X-WP-Total'])
+        if not total:
+            # Fallback: use length of returned products (not accurate for large stores)
+            total = len(products)
+        return {"count": total}
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get product count: {str(e)}"
+        )
+
 @router.get("", response_model=List[ProductResponse])
 async def get_products(
     per_page: int = Query(10, ge=1, le=100),
