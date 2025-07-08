@@ -16,6 +16,7 @@ interface Category {
 interface CategoryTreeProps {
   categories: Category[];
   isLoading: boolean;
+  onUpdate?: () => void;
 }
 
 interface TreeNode extends Category {
@@ -35,6 +36,7 @@ const buildTree = (categories: Category[]): TreeNode[] => {
       id: item.id,
       name: item.name,
       count: item.count,
+      parent: item.parent,
       children: childrenOf[item.id],
     };
 
@@ -81,8 +83,15 @@ const CategoryNode: FC<{ node: TreeNode; level: number; onCategoryClick: (catego
   );
 };
 
-export const CategoryTree: FC<CategoryTreeProps> = ({ categories, isLoading }) => {
+export const CategoryTree: FC<CategoryTreeProps> = ({ categories, isLoading, onUpdate }) => {
   const [selectedCategory, setSelectedCategory] = useState<TreeNode | null>(null);
+  const [refreshFlag, setRefreshFlag] = useState(0);
+
+  const handleUpdate = () => {
+    setRefreshFlag(f => f + 1);
+    setSelectedCategory(null);
+    onUpdate && onUpdate();
+  };
 
   if (isLoading) {
     return (
@@ -104,7 +113,7 @@ export const CategoryTree: FC<CategoryTreeProps> = ({ categories, isLoading }) =
       <div className="bg-card p-6 rounded-lg shadow-sm">
         {categoryTree.map(node => <CategoryNode key={node.id} node={node} level={0} onCategoryClick={setSelectedCategory} />)}
       </div>
-      <CategoryDetailModal category={selectedCategory} onClose={() => setSelectedCategory(null)} />
+      <CategoryDetailModal category={selectedCategory} onClose={() => setSelectedCategory(null)} onUpdate={handleUpdate} />
     </>
   );
 }; 

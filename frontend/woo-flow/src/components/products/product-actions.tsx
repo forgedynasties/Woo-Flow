@@ -27,13 +27,6 @@ export function ProductUtilities() {
             onClick={() => setImportModalOpen(true)}
           />
           <ActionCard
-            title="Export Products"
-            description="Export products to CSV file"
-            icon="file_download"
-            buttonText="Export"
-            onClick={() => setExportModalOpen(true)}
-          />
-          <ActionCard
             title="CSV Guide"
             description="View CSV template and import/export guide"
             icon="help_outline"
@@ -43,36 +36,14 @@ export function ProductUtilities() {
         </div>
       </div>
 
-      {/* Bulk Actions */}
-      <div className="bg-card p-6 rounded-lg shadow-sm">
-        <h2 className="text-lg font-medium mb-4">Bulk Actions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <ActionCard
-            title="Apply/Remove Sale"
-            description="Apply or remove sales from products based on tags, category, etc."
-            icon="sell"
-            buttonText="Configure Sale"
-            onClick={() => setApplySaleOpen(true)}
-          />
-        </div>
-      </div>
-
       {/* Modals */}
       <ImportProductsModal
         isOpen={importModalOpen}
         onClose={() => setImportModalOpen(false)}
       />
-      <ExportProductsModal
-        isOpen={exportModalOpen}
-        onClose={() => setExportModalOpen(false)}
-      />
       <CsvGuideModal
         isOpen={csvGuideOpen}
         onClose={() => setCsvGuideOpen(false)}
-      />
-      <ApplySaleModal
-        isOpen={applySaleOpen}
-        onClose={() => setApplySaleOpen(false)}
       />
     </div>
   );

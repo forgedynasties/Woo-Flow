@@ -65,6 +65,10 @@ async def get_products(
         
     try:
         products = woo_client.products.get_products(**params)
+        store_url = woo_client.store_url
+        for p in products:
+            p['permalink'] = p.get('permalink')
+            p['edit_link'] = f"{store_url}/wp-admin/post.php?post={p.get('id')}&action=edit"
         return products
     except Exception as e:
         raise HTTPException(
@@ -80,6 +84,10 @@ async def get_product(
     """Get a specific product by ID"""
     try:
         product = woo_client.products.get_product_by_id(product_id)
+        # Add permalink and edit_link
+        store_url = woo_client.store_url
+        product['permalink'] = product.get('permalink')
+        product['edit_link'] = f"{store_url}/wp-admin/post.php?post={product_id}&action=edit"
         return product
     except Exception as e:
         raise HTTPException(

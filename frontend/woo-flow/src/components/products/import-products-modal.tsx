@@ -46,17 +46,15 @@ function ImageNamingTooltip() {
 
 export function ImportProductsModal({ isOpen, onClose }: ImportProductsModalProps) {
   const [file, setFile] = useState<File | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [csvData, setCsvData] = useState<any[] | null>(null);
-  const [currentStep, setCurrentStep] = useState<'upload' | 'preview' | 'importing'>('upload');
   const [imageDir, setImageDir] = useState<FileList | null>(null);
-  const [importResult, setImportResult] = useState<{created: any[], failed: any[]} | null>(null);
+  const [currentStep, setCurrentStep] = useState<'upload' | 'preview' | 'importing'>('upload');
+  const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const imageDirInputRef = useRef<HTMLInputElement | null>(null);
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMsg, setNotificationMsg] = useState<string | null>(null);
-  const imageDirInputRef = useRef<HTMLInputElement | null>(null);
-  
+  const [importResult, setImportResult] = useState<{created: any[], failed: any[]} | null>(null);
+
   useEffect(() => {
     if (imageDirInputRef.current) {
       // @ts-ignore
@@ -64,72 +62,53 @@ export function ImportProductsModal({ isOpen, onClose }: ImportProductsModalProp
     }
   }, []);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    accept: {
-      'text/csv': ['.csv'],
-      'application/vnd.ms-excel': ['.csv'],
-    },
-    maxFiles: 1,
-    onDrop: async (acceptedFiles: File[]) => {
-      if (acceptedFiles.length > 0) {
-        const csvFile = acceptedFiles[0];
-        setFile(csvFile);
-        
-        // Parse the CSV file
-        try {
-          const data = await parseCsvFile(csvFile);
-          setCsvData(data);
-          setCurrentStep('preview');
-        } catch (error) {
-          console.error("Error parsing CSV file:", error);
-          // Handle error
-        }
-      }
-    },
-  });
+  // Helper: get image files from folder
+  const getImageFiles = (files: FileList | null) => {
+    if (!files) return [];
+    const imageExts = ["jpg", "jpeg", "png", "webp"];
+    return Array.from(files).filter(f => {
+      const ext = f.name.split('.').pop()?.toLowerCase();
+      return ext && imageExts.includes(ext);
+    });
+  };
 
+  // CSV file input handler
+  const handleCsvChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setFile(e.target.files[0]);
+    }
+  };
+
+  // Remove CSV file
+  const removeCsv = () => setFile(null);
+
+  // Remove image folder
+  const removeImageDir = () => setImageDir(null);
+
+  // Restore CSV import functionality
   const handleImport = async () => {
     if (!file) return;
-    setCurrentStep('importing');
     setIsUploading(true);
     setError(null);
     try {
-      setUploadProgress(0);
-      const progressInterval = setInterval(() => {
-        setUploadProgress(prev => {
-          if (prev >= 90) {
-            clearInterval(progressInterval);
-            return 90;
-          }
-          return prev + 5;
-        });
-      }, 300);
       const result = await importProductsFromCsv(file);
-      clearInterval(progressInterval);
-      setUploadProgress(100);
       setImportResult(result);
-      // Show notification after import
       const created = result.created?.length || 0;
       const failed = result.failed?.length || 0;
       setNotificationMsg(`Imported ${created} product${created === 1 ? '' : 's'}${failed ? `, ${failed} failed` : ''}.`);
       setShowNotification(true);
       setTimeout(() => setShowNotification(false), 5000);
-      // Do NOT close the modal automatically; let the user review results
       setIsUploading(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unknown error occurred during import');
-      setUploadProgress(0);
       setIsUploading(false);
     }
   };
-  
-  const handleBack = () => {
-    setCurrentStep('upload');
-    setCsvData(null);
-  };
-  
+
   if (!isOpen) return null;
-  
+
+  const imageFiles = getImageFiles(imageDir);
+
   return (
     <div className="fixed inset-0 top-0 left-0 w-screen h-screen bg-black bg-opacity-50 flex items-center justify-center z-50 p-0">
       <div className="bg-card text-card-foreground p-6 rounded-lg shadow-lg max-w-5xl w-full max-h-[90vh] flex flex-col overflow-y-auto">
@@ -144,11 +123,7 @@ export function ImportProductsModal({ isOpen, onClose }: ImportProductsModalProp
           </div>
         )}
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-semibold">
-            {currentStep === 'upload' && 'Import Products from CSV'}
-            {currentStep === 'preview' && 'Preview Products from CSV'}
-            {currentStep === 'importing' && 'Importing Products...'}
-          </h3>
+          <h3 className="text-xl font-semibold">Import Products</h3>
           <button 
             className="text-muted-foreground hover:text-foreground"
             onClick={onClose}
@@ -157,218 +132,107 @@ export function ImportProductsModal({ isOpen, onClose }: ImportProductsModalProp
             <span className="material-icons">close</span>
           </button>
         </div>
-        
-        <div className="overflow-y-auto flex-1">
-          {currentStep === 'upload' && (
-            <>
-              <div className="mb-4">
-                <div 
-                  {...getRootProps()} 
-                  className={`border-2 border-dashed ${isDragActive ? 'border-primary' : 'border-input'} rounded-lg p-8 text-center cursor-pointer hover:border-primary transition-colors`}
+        <div className="flex flex-row gap-8 items-stretch mb-6">
+          {/* CSV Upload */}
+          <div className="flex-1 flex flex-col items-center justify-center border border-dashed border-input rounded-lg p-6 min-h-[220px]">
+            <label className="block font-medium mb-2">CSV File</label>
+            {!file ? (
+              <>
+                <input
+                  type="file"
+                  accept=".csv"
+                  id="csv-upload"
+                  style={{ display: 'none' }}
+                  onChange={handleCsvChange}
+                />
+                <button
+                  type="button"
+                  className="px-4 py-2 bg-muted text-muted-foreground rounded hover:bg-primary/10 border border-zinc-200 text-sm"
+                  onClick={() => document.getElementById('csv-upload')?.click()}
+                  disabled={isUploading}
                 >
-                  <input {...getInputProps()} />
-                  <span className="material-icons text-4xl mb-2 text-muted-foreground">upload_file</span>
-                  <p className="text-muted-foreground">
-                    {isDragActive ? 
-                      'Drop the CSV file here' : 
-                      'Drag & drop your CSV file here or click to browse'
-                    }
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Make sure your CSV has the required columns: type, name, price, etc.
-                  </p>
-                </div>
+                  <span className="material-icons align-middle mr-1">upload_file</span>
+                  Select CSV File
+                </button>
+                <p className="text-xs text-muted-foreground mt-2">Only one CSV file allowed. Required columns: type, name, price, etc.</p>
+              </>
+            ) : (
+              <div className="flex flex-col items-center gap-2">
+                <span className="material-icons text-4xl text-primary">description</span>
+                <span className="text-sm font-medium">{file.name}</span>
+                <button
+                  type="button"
+                  className="text-xs text-red-600 hover:underline mt-1"
+                  onClick={removeCsv}
+                  disabled={isUploading}
+                >Remove</button>
               </div>
-              {/* Image directory picker and naming scheme */}
-              <div className="mb-4">
-                <label className="block font-medium mb-1 flex items-center gap-2">
-                  Product Images (optional)
-                  <ImageNamingTooltip />
-                </label>
-                <div className="flex items-center gap-2 mb-2">
-                  <input
-                    type="file"
-                    ref={imageDirInputRef}
-                    multiple
-                    style={{ display: 'none' }}
-                    onChange={e => setImageDir(e.target.files)}
-                  />
-                  <button
-                    type="button"
-                    className="px-3 py-1 bg-muted text-muted-foreground rounded hover:bg-primary/10 border border-zinc-200 text-xs"
-                    onClick={() => imageDirInputRef.current?.click()}
-                  >
-                    Browse
-                  </button>
-                  <span className="text-xs text-muted-foreground">
-                    {imageDir && imageDir.length > 0 ? `${imageDir.length} files selected` : 'No directory selected'}
-                  </span>
-                </div>
-                <div className="mb-2 p-2 bg-amber-100 text-amber-800 rounded text-xs">
-                  <b>Note:</b> Using an image directory will <b>overwrite</b> any image URL fields in the CSV for matching products.
-                </div>
+            )}
+          </div>
+          {/* Plus icon */}
+          <div className="flex flex-col justify-center items-center px-2">
+            <span className="material-icons text-3xl text-muted-foreground">add</span>
+          </div>
+          {/* Image Folder Picker */}
+          <div className="flex-1 flex flex-col items-center justify-center border border-dashed border-input rounded-lg p-6 min-h-[220px]">
+            <label className="block font-medium mb-2">Image Folder</label>
+            {!imageDir ? (
+              <>
+                <input
+                  type="file"
+                  ref={imageDirInputRef}
+                  multiple
+                  style={{ display: 'none' }}
+                  onChange={e => setImageDir(e.target.files)}
+                  accept="image/jpeg,image/png,image/webp"
+                />
+                <button
+                  type="button"
+                  className="px-4 py-2 bg-muted text-muted-foreground rounded hover:bg-primary/10 border border-zinc-200 text-sm"
+                  onClick={() => imageDirInputRef.current?.click()}
+                  disabled={isUploading}
+                >
+                  <span className="material-icons align-middle mr-1">folder_open</span>
+                  Select Image Folder
+                </button>
+                <p className="text-xs text-muted-foreground mt-2">Choose a folder containing product images (jpg, jpeg, png, webp).</p>
+              </>
+            ) : (
+              <div className="flex flex-col items-center gap-2">
+                <span className="material-icons text-4xl text-primary">folder</span>
+                <span className="text-sm font-medium">{imageFiles.length} image file{imageFiles.length !== 1 ? 's' : ''} found</span>
+                {imageFiles.length > 0 && (
+                  <ul className="text-xs text-muted-foreground mt-1 max-h-16 overflow-y-auto">
+                    {imageFiles.slice(0, 3).map((f, i) => (
+                      <li key={i}>{f.name}</li>
+                    ))}
+                    {imageFiles.length > 3 && <li>...and {imageFiles.length - 3} more</li>}
+                  </ul>
+                )}
+                <button
+                  type="button"
+                  className="text-xs text-red-600 hover:underline mt-1"
+                  onClick={removeImageDir}
+                  disabled={isUploading}
+                >Remove</button>
               </div>
-              <div className="mt-4">
-                <h4 className="font-medium mb-2">CSV Format Requirements</h4>
-                <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                  <li>First row should contain column headers</li>
-                  <li>Required columns: type, name, description, regular_price</li>
-                  <li>For variations: use 'variable' and 'variation' types</li>
-                  <li>Product images can be specified as URLs</li>
-                </ul>
-              </div>
-            </>
-          )}
-          
-          {currentStep === 'preview' && csvData && (
-            <CSVPreview data={csvData} fileName={file?.name || ''} />
-          )}
-          
-          {currentStep === 'importing' && (
-            <div className="py-4">
-              <div className="flex items-center mb-4">
-                <span className="material-icons mr-2 text-green-500">description</span>
-                <span className="font-medium">{file?.name}</span>
-                <span className="ml-2 text-xs text-muted-foreground">
-                  ({(file?.size || 0) / 1024 < 1024 
-                    ? `${((file?.size || 0) / 1024).toFixed(2)} KB` 
-                    : `${((file?.size || 0) / 1024 / 1024).toFixed(2)} MB`})
-                </span>
-              </div>
-              
-              <div className="mb-6">
-                <div className="flex justify-between text-xs mb-1">
-                  <span>Uploading...</span>
-                  <span>{uploadProgress}%</span>
-                </div>
-                <div className="w-full bg-muted rounded-full h-2">
-                  <div
-                    className="bg-primary h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${uploadProgress}%` }}
-                  />
-                </div>
-              </div>
-              
-              {error && (
-                <div className="text-sm text-red-500 bg-red-50 p-4 rounded-md mb-4">
-                  <p className="flex items-center">
-                    <span className="material-icons text-red-500 mr-2">error</span>
-                    {error}
-                  </p>
-                  
-                  {importResult && importResult.failed && importResult.failed.length > 0 && (
-                    <div className="mt-3 max-h-40 overflow-y-auto bg-white p-2 rounded border border-red-200">
-                      <h4 className="font-medium mb-2">Failed items:</h4>
-                      <ul className="list-disc list-inside">
-                        {importResult.failed.map((item, index) => (
-                          <li key={index} className="text-xs">{`Row ${item.row}: ${item.error}`}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              )}
-              
-              {importResult && importResult.created && importResult.created.length > 0 && !error && (
-                <div className="text-sm text-green-600 bg-green-50 p-4 rounded-md">
-                  <p className="flex items-center">
-                    <span className="material-icons text-green-500 mr-2">check_circle</span>
-                    Successfully imported {importResult.created.length} products.
-                  </p>
-                </div>
-              )}
-              
-              {importResult && (importResult.created.length > 0 || importResult.failed.length > 0) && (
-                <div className="mt-6">
-                  {importResult.created.length > 0 && (
-                    <div className="mb-6">
-                      <h4 className="font-medium mb-2 text-green-700">Successfully Imported Products</h4>
-                      <CSVPreview data={importResult.created} fileName="Imported Products" />
-                    </div>
-                  )}
-                  {importResult.failed.length > 0 && (
-                    <div>
-                      <h4 className="font-medium mb-2 text-red-700">Failed Imports</h4>
-                      <div className="border border-red-200 rounded-lg overflow-hidden max-h-[40vh]">
-                        <table className="w-full">
-                          <thead>
-                            <tr className="bg-red-50">
-                              <th className="py-2 px-3 text-left text-xs font-medium text-red-700 uppercase tracking-wider">Row</th>
-                              <th className="py-2 px-3 text-left text-xs font-medium text-red-700 uppercase tracking-wider">Error</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {importResult.failed.map((item, idx) => (
-                              <tr key={idx} className={idx % 2 === 0 ? 'bg-card' : 'bg-red-50'}>
-                                <td className="py-2 px-3 text-sm">{item.row}</td>
-                                <td className="py-2 px-3 text-sm">{item.error}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-              
-              <div className="text-sm text-muted-foreground bg-muted/30 p-4 rounded-md mt-4">
-                <p className="flex items-center">
-                  <span className="material-icons text-amber-500 mr-2">info</span>
-                  This may take a few minutes depending on the number of products.
-                </p>
-              </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
-        
-        <div className="flex justify-end space-x-2 mt-6 pt-4 border-t border-zinc-200">
-          {currentStep === 'preview' && (
-            <button 
-              className="px-4 py-2 bg-muted text-muted-foreground rounded-md hover:bg-opacity-80"
-              onClick={handleBack}
-            >
-              Back
-            </button>
-          )}
-          
-          <button 
-            className="px-4 py-2 bg-muted text-muted-foreground rounded-md hover:bg-opacity-80"
-            onClick={onClose}
-            disabled={isUploading}
+        {/* Import button */}
+        <div className="flex justify-end mt-4">
+          <button
+            className="px-6 py-2 bg-primary text-primary-foreground rounded-md hover:bg-opacity-90 disabled:opacity-60"
+            disabled={!file || isUploading}
+            onClick={handleImport}
           >
-            Cancel
+            {isUploading ? 'Importing...' : 'Import'}
           </button>
-          
-          {currentStep === 'preview' && (
-            <button 
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-opacity-80 flex items-center"
-              onClick={handleImport}
-            >
-              Import Products
-              <span className="material-icons text-sm ml-1">file_upload</span>
-            </button>
-          )}
-
-          {currentStep === 'importing' && (
-            <button 
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-opacity-80 flex items-center"
-              onClick={() => {
-                setCurrentStep('upload');
-                setIsUploading(false);
-                setError(null);
-                setImportResult(null);
-                setFile(null);
-                setCsvData(null);
-                setUploadProgress(0);
-                onClose();
-              }}
-              disabled={isUploading}
-            >
-              Close
-            </button>
-          )}
         </div>
+        {/* Show error if any */}
+        {error && (
+          <div className="mt-4 text-red-600 bg-red-50 p-3 rounded">{error}</div>
+        )}
       </div>
     </div>
   );

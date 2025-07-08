@@ -16,6 +16,8 @@ export interface Product {
   stock_status?: string;
   categories?: Array<{id: number, name: string}>;
   images?: Array<{id: number, src: string}>;
+  permalink?: string;
+  edit_link?: string;
   [key: string]: any;
 }
 

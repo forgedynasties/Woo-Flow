@@ -12,6 +12,8 @@ interface Product {
   stock: number;
   category: string;
   status: string;
+  edit_link: string;
+  permalink: string;
 }
 
 interface ProductTableProps {
@@ -113,9 +115,23 @@ export function ProductTable({ products, isLoading, onRefresh }: ProductTablePro
                   </td>
                   <td className="py-4">
                     <div className="flex space-x-2">
-                      <button className="p-1 text-blue-500 hover:text-blue-700">
-                        <span className="material-icons text-sm">edit</span>
-                      </button>
+                      {product.edit_link ? (
+                        <a
+                          href={product.edit_link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-1 text-blue-500 hover:text-blue-700 flex items-center gap-1"
+                          title="Edit in WooCommerce"
+                        >
+                          <span className="material-icons text-sm">edit</span>
+                          <span className="text-xs">Edit</span>
+                        </a>
+                      ) : (
+                        <span className="p-1 text-blue-300 flex items-center gap-1 cursor-not-allowed opacity-50">
+                          <span className="material-icons text-sm">edit</span>
+                          <span className="text-xs">Edit</span>
+                        </span>
+                      )}
                       <button 
                         className={`p-1 text-red-500 hover:text-red-700 ${deletingId === product.id ? 'opacity-50 pointer-events-none' : ''}`}
                         onClick={() => handleDelete(product.id)}
@@ -123,9 +139,23 @@ export function ProductTable({ products, isLoading, onRefresh }: ProductTablePro
                       >
                         <span className="material-icons text-sm">delete</span>
                       </button>
-                      <button className="p-1 text-gray-500 hover:text-gray-700">
-                        <span className="material-icons text-sm">visibility</span>
-                      </button>
+                      {product.permalink ? (
+                        <a
+                          href={product.permalink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-1 text-gray-500 hover:text-gray-700 flex items-center gap-1"
+                          title="View Product"
+                        >
+                          <span className="material-icons text-sm">visibility</span>
+                          <span className="text-xs">View</span>
+                        </a>
+                      ) : (
+                        <span className="p-1 text-gray-300 flex items-center gap-1 cursor-not-allowed opacity-50">
+                          <span className="material-icons text-sm">visibility</span>
+                          <span className="text-xs">View</span>
+                        </span>
+                      )}
                     </div>
                   </td>
                 </tr>

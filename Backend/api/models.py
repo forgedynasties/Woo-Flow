@@ -126,6 +126,8 @@ class ProductResponse(BaseModel):
     images: List[ImageModel] = []
     attributes: List[Dict[str, Any]] = []
     variations: Optional[List[int]] = None
+    permalink: Optional[str] = None
+    edit_link: Optional[str] = None
     model_config = ConfigDict(
         extra='allow',  # Allow additional fields
     )
