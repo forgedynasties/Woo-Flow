@@ -12,7 +12,7 @@ This guide explains how to connect and consume your FastAPI backend API from the
 ---
 
 ## 2. Configure API Base URL
-1. In `frontend/woo-flow`, create a `.env.local` file:
+1. In `frontend`, create a `.env.local` file:
    ```env
    NEXT_PUBLIC_API_URL=http://localhost:8000
    ```
@@ -83,7 +83,7 @@ app.add_middleware(
   ```
 - **Frontend:**
   ```bash
-  cd frontend/woo-flow
+  cd frontend
   npm install
   npm run dev
   ```

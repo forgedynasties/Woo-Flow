@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "mermaid": "^11.7.0",
-    "react-hot-toast": "^2.5.2"
-  }
-}
