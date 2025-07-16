@@ -1,16 +1,7 @@
 import { apiRequest } from './api-client';
 
 export interface ApiSettings {
-  wc_url: string;
-  wc_key: string;
-  verify_ssl: boolean;
-  api_key?: string;
-  wc_secret?: string;
-  wp_secret?: string;
-}
-
-export interface SSLSettings {
-  verify_ssl: boolean;
+  backend_url?: string;
 }
 
 export interface ApiTestResult {
@@ -22,29 +13,17 @@ export interface ApiTestResult {
       message: string;
       responseTime?: number;
     };
-    woocommerce?: {
+    products?: {
       status: 'ok' | 'error';
       message: string;
       responseTime?: number;
       data?: any;
-    };
-    wordpress?: {
-      status: 'ok' | 'error';
-      message: string;
-      responseTime?: number;
     };
   };
 }
 
 export async function getApiSettings(): Promise<ApiSettings> {
   return apiRequest<ApiSettings>('/settings');
-}
-
-export async function updateSslSettings(settings: SSLSettings): Promise<ApiSettings> {
-  return apiRequest<ApiSettings>('/settings/ssl', {
-    method: 'POST',
-    body: JSON.stringify(settings)
-  });
 }
 
 export async function testConnection(): Promise<{status: string; message: string}> {
@@ -57,61 +36,68 @@ export async function testConnectionDetails(): Promise<ApiTestResult> {
     const healthResult = await apiRequest<{status: string; message: string}>('/health');
     const backendResponseTime = performance.now() - startTime;
     
-    // Test WooCommerce connection if backend is available
-    let woocommerceTest: { status: 'ok' | 'error', message: string, responseTime?: number, data?: any } = 
+    // Test product operations to verify full functionality
+    let productTest: { status: 'ok' | 'error', message: string, responseTime?: number, data?: any } = 
       { status: 'error', message: 'Not tested' };
-    let wordpressTest: { status: 'ok' | 'error', message: string, responseTime?: number } = 
-      { status: 'error', message: 'Not tested' };
-    
+
     if (healthResult.status === 'ok') {
       try {
-        const wcStartTime = performance.now();
-        // Use /store/info for WooCommerce connection test
-        const wcResult = await apiRequest<any>('/store/info');
-        woocommerceTest = {
-          status: 'ok',
-          message: 'WooCommerce connection successful',
-          responseTime: performance.now() - wcStartTime,
-          data: wcResult
+        const productStartTime = performance.now();
+        
+        // First, try to get products list
+        const productsResult = await apiRequest<any>('/products?per_page=1');
+        
+        // Then try to create a test product
+        const testProduct = {
+          name: 'Test Product - ' + new Date().toISOString(),
+          type: 'simple',
+          regular_price: '10.00',
+          description: 'Test product created for connection testing',
+          short_description: 'Test product',
+          status: 'draft' // Create as draft to avoid affecting live store
         };
-      } catch (err) {
-        woocommerceTest = {
-          status: 'error',
-          message: err instanceof Error ? err.message : 'Failed to connect to WooCommerce API'
-        };
-      }
-      
-      try {
-        const wpStartTime = performance.now();
-        // Use /media with a dummy payload for WordPress/media connection test
-        const wpResult = await apiRequest<any>('/media', {
+        
+        const createResult = await apiRequest<any>('/products', {
           method: 'POST',
-          body: JSON.stringify({ url: 'https://windsoruk.co.uk/wp-content/uploads/1-49-2048x2048.jpg' })
+          body: JSON.stringify(testProduct)
         });
-        wordpressTest = {
+        
+        // Clean up - delete the test product
+        if (createResult && createResult.id) {
+          await apiRequest<any>(`/products/${createResult.id}`, {
+            method: 'DELETE'
+          });
+        }
+        
+        productTest = {
           status: 'ok',
-          message: 'WordPress media connection successful',
-          responseTime: performance.now() - wpStartTime
+          message: `Product operations successful. Can read products and create/delete test products.`,
+          responseTime: performance.now() - productStartTime,
+          data: {
+            products_count: productsResult?.length || 0,
+            test_product_created: createResult?.id || 'N/A'
+          }
         };
       } catch (err) {
-        wordpressTest = {
+        productTest = {
           status: 'error',
-          message: err instanceof Error ? err.message : 'Failed to connect to WordPress'
+          message: err instanceof Error ? err.message : 'Failed to perform product operations'
         };
       }
     }
     
     return {
-      status: healthResult.status,
-      message: healthResult.message,
+      status: healthResult.status === 'ok' && productTest.status === 'ok' ? 'ok' : 'error',
+      message: healthResult.status === 'ok' && productTest.status === 'ok' 
+        ? 'All tests passed successfully' 
+        : 'Some tests failed',
       details: {
         backend: {
           status: healthResult.status === 'ok' ? 'ok' : 'error',
           message: healthResult.message || 'Backend is healthy',
           responseTime: backendResponseTime
         },
-        woocommerce: woocommerceTest,
-        wordpress: wordpressTest
+        products: productTest
       }
     };
   } catch (err) {

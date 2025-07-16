@@ -98,18 +98,6 @@ async def generic_exception_handler(request, exc):
         ).dict()
     )
 
-# When accessing http://localhost:8000/docs, FastAPI automatically generates
-# and serves interactive Swagger UI documentation based on your API endpoints.
-# This is testing the FastAPI application and not directly the WooCommerce API.
-# 
-# The Swagger UI lets you try the endpoints that ultimately communicate with WooCommerce,
-# but it's an interface for your FastAPI application.
-# 
-# When you make requests through Swagger UI:
-# 1. FastAPI handles the request
-# 2. WooClient (your wrapper) is instantiated with your credentials
-# 3. WooClient makes the actual request to WooCommerce API
-# 4. The response is passed back to FastAPI and shown in the UI
 
 if __name__ == "__main__":
     import uvicorn
